@@ -4,6 +4,7 @@ import { marketStore, updateClockOffset, updateConnectionStatus, batchUpdateTick
 import { uiStore } from './store/uiStore';
 import { Header } from './components/Header';
 import { TradingLayout } from './components/TradingLayout';
+import { DiagnosticOverlay } from './components/DiagnosticOverlay';
 import { db } from './db/db';
 import { TickerData, SymbolConfig } from './types';
 
@@ -145,6 +146,7 @@ const App: React.FC = () => {
                </div>
           </div>
       </footer>
+      <DiagnosticOverlay />
     </div>
   );
 };

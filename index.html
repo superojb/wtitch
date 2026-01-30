@@ -12,6 +12,8 @@
     <link id="flexlayout-stylesheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css" />
 
     <style type="text/tailwindcss">
+      @import "tailwindcss";
+      
       @theme {
         --color-border: var(--border);
         --color-input: var(--input);
@@ -167,25 +169,25 @@
     <script type="importmap">
     {
       "imports": {
-        "react-dom": "https://esm.sh/react-dom@^19.2.4",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-        "react": "https://esm.sh/react@^19.2.4",
-        "react/": "https://esm.sh/react@^19.2.4/",
-        "lucide-react": "https://esm.sh/lucide-react@^0.563.0?external=react,react-dom",
-        "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0?external=react,react-dom",
-        "clsx": "https://esm.sh/clsx@^2.1.1?external=react,react-dom",
-        "dexie": "https://esm.sh/dexie@^4.2.1",
-        "big.js": "https://esm.sh/big.js@^7.0.1",
-        "valtio": "https://esm.sh/valtio@^2.3.0?external=react,react-dom",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/": "https://esm.sh/react-dom@19.0.0/",
+        "react": "https://esm.sh/react@19.0.0",
+        "react/": "https://esm.sh/react@19.0.0/",
+        "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react,react-dom",
+        "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.4?external=react,react-dom",
+        "clsx": "https://esm.sh/clsx@2.1.1?external=react,react-dom",
+        "dexie": "https://esm.sh/dexie@4.0.8",
+        "big.js": "https://esm.sh/big.js@6.2.1",
+        "valtio": "https://esm.sh/valtio@2.0.0?external=react,react-dom",
         "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
         "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom",
-        "klinecharts": "https://esm.sh/klinecharts@^9.8.12"
+        "klinecharts": "https://esm.sh/klinecharts@9.8.12"
       }
     }
     </script>
   </head>
   <body class="bg-background text-foreground antialiased overflow-hidden h-screen w-screen relative">
-    <div id="root" class="h-full w-full"></div>
+    <div id="root" class="h-full w-full" style="height:100vh; width:100vw; overflow:hidden;"></div>
     <script>
       // Global Error Trap for Blank Page Diagnosis
       window.addEventListener('error', function(event) {

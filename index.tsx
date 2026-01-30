@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-const mount = () => {
+const startApp = () => {
     const rootElement = document.getElementById('root');
     if (!rootElement) {
-      console.error("Failed to find root element");
+      console.error("FATAL: Root element not found.");
       return;
     }
     
@@ -20,8 +20,9 @@ const mount = () => {
     );
 };
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', mount);
+// Strict Wait for Window Load to ensure all styles and scripts are ready
+if (document.readyState === 'complete') {
+    startApp();
 } else {
-    mount();
+    window.addEventListener('load', startApp);
 }
