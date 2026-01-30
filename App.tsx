@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
 import { marketStore, updateClockOffset, updateConnectionStatus, batchUpdateTickers, setSymbols, setSymbolMetadata, scheduleDbSync } from './store/marketStore';
-import { uiStore } from './store/uiStore';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Header } from './components/Header';
 import { TradingLayout } from './components/TradingLayout';
+import { SystemIsland } from './components/SystemIsland';
 import { DiagnosticOverlay } from './components/DiagnosticOverlay';
 import { CommandPalette } from './components/CommandPalette';
 import { GlobalContextMenu } from './components/ui/context-menu';
@@ -11,33 +12,9 @@ import { MarketTicker } from './components/MarketTicker';
 import { db } from './db/db';
 import { TickerData, SymbolConfig } from './types';
 
-// Component to handle side-effects of theme switching
-const ThemeManager = () => {
-    const { theme } = useSnapshot(uiStore);
-
-    useEffect(() => {
-        const html = document.documentElement;
-        const flexLayoutLink = document.getElementById('flexlayout-stylesheet') as HTMLLinkElement;
-        
-        if (theme === 'dark') {
-            html.classList.add('dark');
-            html.classList.remove('light');
-            if (flexLayoutLink) flexLayoutLink.href = "https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css";
-        } else {
-            html.classList.add('light');
-            html.classList.remove('dark');
-            if (flexLayoutLink) flexLayoutLink.href = "https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/light.css";
-        }
-    }, [theme]);
-
-    return null;
-};
-
 const App: React.FC = () => {
-  const { connectionStatus } = useSnapshot(marketStore);
   const [initDb, setInitDb] = useState(false);
 
-  // Simulate startup logic
   useEffect(() => {
     const init = async () => {
       await db.open();
@@ -56,17 +33,17 @@ const App: React.FC = () => {
       updateConnectionStatus('connecting');
       setTimeout(() => {
         updateConnectionStatus('connected');
-        updateClockOffset(-50); 
+        updateClockOffset(-42); 
       }, 800);
     };
 
     init();
 
-    // Mock Websocket Data Feed
+    // Data Feed Simulation
     const interval = setInterval(() => {
         if (marketStore.connectionStatus === 'connected') {
             const updates: TickerData[] = [];
-            const syms = marketStore.symbols.length > 0 ? marketStore.symbols : ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT'];
+            const syms = marketStore.symbols.length > 0 ? marketStore.symbols : ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT', 'BNBUSDT', 'ADAUSDT'];
             syms.forEach(sym => {
                 updates.push({
                     symbol: sym,
@@ -86,32 +63,33 @@ const App: React.FC = () => {
   }, []);
 
   if (!initDb) {
-      return <div className="flex h-full w-full items-center justify-center bg-vx-bg text-vx-text-primary animate-pulse font-mono text-xs">KERNEL INITIALIZING...</div>;
+      return <div className="flex h-screen w-screen items-center justify-center bg-black text-white font-mono text-xs tracking-widest animate-pulse">BOOTSTRAPPING CRYSTAL ENGINE...</div>;
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-vx-bg text-vx-text-primary overflow-hidden">
-      <ThemeManager />
-      <Header />
-      <main className="flex-1 overflow-hidden relative">
-        <TradingLayout />
-      </main>
-      
-      {/* Footer: Market Ticker + Status */}
-      <footer className="h-6 bg-vx-bg border-t border-vx-border flex items-center justify-between shrink-0 select-none overflow-hidden relative z-50">
-          <div className="w-[85px] flex items-center justify-center h-full bg-vx-surface border-r border-vx-border shrink-0">
-             <span className={connectionStatus === 'connected' ? 'text-vx-up text-[9px] font-bold' : 'text-vx-down text-[9px] font-bold'}>
-                {connectionStatus.toUpperCase()}
-             </span>
-          </div>
-
-          <MarketTicker />
-      </footer>
-      
-      <CommandPalette />
-      <GlobalContextMenu />
-      <DiagnosticOverlay />
-    </div>
+    <ThemeProvider>
+        <div className="h-screen w-screen overflow-hidden relative selection:bg-vx-accent selection:text-white">
+            {/* Background Ambient Layers */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0 mix-blend-overlay"></div>
+            
+            {/* System UI Layer (Top) */}
+            <Header />
+            <SystemIsland />
+            
+            {/* Main Workspace */}
+            <main className="absolute inset-0 z-10">
+                <TradingLayout />
+            </main>
+            
+            {/* Floating Dock Layer (Bottom) */}
+            <MarketTicker />
+            
+            {/* Overlays */}
+            <CommandPalette />
+            <GlobalContextMenu />
+            <DiagnosticOverlay />
+        </div>
+    </ThemeProvider>
   );
 };
 

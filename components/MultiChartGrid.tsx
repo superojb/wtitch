@@ -36,9 +36,9 @@ export const MultiChartGrid: React.FC = () => {
     while (slots.length < count) slots.push(null);
 
     return (
-        <div className={cn("h-full w-full grid gap-[1px] bg-vx-border", gridClass)}>
+        <div className={cn("h-full w-full grid gap-3 p-3 animate-float-up", gridClass)}>
             {slots.map((sym, idx) => (
-                <div key={idx} className="bg-vx-bg overflow-hidden relative">
+                <div key={idx} className="relative w-full h-full">
                     <Chart 
                         symbol={sym} 
                         isActive={sym === selectedSymbol}

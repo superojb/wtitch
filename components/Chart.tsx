@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useEffect, memo } from 'react';
 import * as klinecharts from 'klinecharts';
 import { useSnapshot } from 'valtio';
 import { marketStore, selectSymbol } from '../store/marketStore';
-import { uiStore } from '../store/uiStore';
+import { useVexTheme } from '../contexts/ThemeContext';
 import { cn } from '../lib/utils';
 
 interface ChartProps {
@@ -12,41 +12,20 @@ interface ChartProps {
 
 const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartInstanceRef = useRef<any | null>(null);
+  const chartInstanceRef = useRef<any>(null);
   const { tickers, clockOffset } = useSnapshot(marketStore);
-  const { theme } = useSnapshot(uiStore);
+  const { getChartStyle, theme } = useVexTheme();
 
-  // Layout Effect for Init
+  // 1. Initialization
   useLayoutEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // determine colors based on theme (simple check)
-    const isDark = document.documentElement.classList.contains('dark');
-    const bg = isDark ? '#020617' : '#f8fafc';
-    const gridColor = isDark ? 'rgba(30, 41, 59, 0.5)' : '#e2e8f0';
-    const textColor = isDark ? '#94a3b8' : '#64748b';
-
     // Initialize chart
-    // Casting to any to avoid TypeScript errors with applyNewData if types are incomplete
-    const chart = klinecharts.init(chartContainerRef.current, {
-        styles: {
-            grid: {
-                horizontal: { color: gridColor, style: 'dashed', dashedValue: [2, 2] },
-                vertical: { color: gridColor, style: 'dashed', dashedValue: [2, 2] }
-            },
-            candle: {
-                bar: {
-                    upColor: isDark ? '#10b981' : '#059669',
-                    downColor: isDark ? '#f43f5e' : '#e11d48',
-                    noChangeColor: textColor
-                },
-            },
-            xAxis: { tickText: { color: textColor, family: 'JetBrains Mono' } },
-            yAxis: { tickText: { color: textColor, family: 'JetBrains Mono' } }
-        }
-    }) as any;
-    
+    const chart = klinecharts.init(chartContainerRef.current) as any;
     chartInstanceRef.current = chart;
+    
+    // Apply initial style from Context
+    chart?.setStyles(getChartStyle());
     
     // Initial Dummy Data
     const now = Date.now() + clockOffset;
@@ -70,37 +49,56 @@ const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
       resizeObserver.disconnect();
       klinecharts.dispose(chartContainerRef.current!); 
     };
-  }, [theme]); // Re-init on theme change
+  }, []);
 
-  // Data Update Effect
+  // 2. Theme Synchronization (Reactive)
+  useEffect(() => {
+      if(chartInstanceRef.current) {
+          chartInstanceRef.current.setStyles(getChartStyle());
+      }
+  }, [theme, getChartStyle]);
+
+  // 3. Data Flow
   useEffect(() => {
       if (!chartInstanceRef.current || !symbol || !tickers[symbol]) return;
       const t = tickers[symbol];
       const price = parseFloat(t.lastPrice);
       const timestamp = Date.now() + clockOffset;
 
-      // Ensure updateData is called on the instance
       chartInstanceRef.current.updateData({
           timestamp,
           open: price, high: price, low: price, close: price,
           volume: parseFloat(t.volume) / 1000
       });
-  }, [tickers[symbol || ''], clockOffset]); // Only re-run if THIS symbol updates
+  }, [tickers[symbol || ''], clockOffset]); 
 
-  if (!symbol) return <div className="h-full w-full bg-vx-surface" />;
+  if (!symbol) return (
+      <div className="h-full w-full rounded-2xl bg-vx-glass border border-vx-glass-border backdrop-blur-md flex items-center justify-center">
+          <span className="text-vx-text-muted text-xs tracking-widest opacity-30 font-bold">EMPTY SLOT</span>
+      </div>
+  );
 
   return (
     <div 
         className={cn(
-            "h-full w-full relative group transition-all duration-200",
-            isActive ? "border-2 border-vx-accent z-10" : "border border-transparent hover:border-vx-border"
+            "h-full w-full relative group transition-all duration-300 ease-spring overflow-hidden rounded-2xl",
+            "bg-vx-glass backdrop-blur-md border",
+            isActive 
+                ? "border-vx-accent shadow-[0_0_30px_-10px_var(--color-vx-accent-glow)] z-10" 
+                : "border-vx-glass-border hover:border-vx-text-secondary/30"
         )}
         onClick={() => selectSymbol(symbol)}
     >
-        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-vx-bg/80 backdrop-blur border border-vx-border">
-            <span className="text-[10px] font-bold font-mono text-vx-accent">{symbol}</span>
+        {/* Header Pill */}
+        <div className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-black/40 backdrop-blur border border-white/5 flex items-center gap-2">
+            <span className="text-[10px] font-bold font-mono text-vx-text-primary">{symbol}</span>
+            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-vx-accent animate-pulse" />}
         </div>
-        <div ref={chartContainerRef} className="h-full w-full" />
+        
+        <div ref={chartContainerRef} className="h-full w-full opacity-90" />
+        
+        {/* Glass reflection */}
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
     </div>
   );
 };

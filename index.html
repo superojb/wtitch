@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SwayVex Terminal</title>
+    <title>SwayVex Crystal</title>
     
-    <!-- Tailwind CSS v4 Browser Script -->
+    <!-- Tailwind CSS v4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
     <!-- FlexLayout CSS -->
     <link id="flexlayout-stylesheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css" />
 
-    <!-- Strict Version Locking via ImportMap -->
+    <!-- Import Map -->
     <script type="importmap">
     {
       "imports": {
@@ -35,101 +35,60 @@
     }
     </script>
 
-    <!-- Tailwind Config & Industrial Theme -->
     <style type="text/tailwindcss">
       @import "tailwindcss";
 
       @theme {
         --color-vx-bg: var(--color-vx-bg);
-        --color-vx-surface: var(--color-vx-surface);
-        --color-vx-border: var(--color-vx-border);
+        --color-vx-glass: var(--color-vx-glass);
+        --color-vx-glass-border: var(--color-vx-glass-border);
         --color-vx-accent: var(--color-vx-accent);
-        --color-vx-accent-dim: var(--color-vx-accent-dim);
-        
+        --color-vx-accent-glow: var(--color-vx-accent-glow);
         --color-vx-up: var(--color-vx-up);
         --color-vx-down: var(--color-vx-down);
-        --color-vx-up-bg: var(--color-vx-up-bg);
-        --color-vx-down-bg: var(--color-vx-down-bg);
-        
         --color-vx-text-primary: var(--color-vx-text-primary);
         --color-vx-text-secondary: var(--color-vx-text-secondary);
         
         --font-mono: "JetBrains Mono", monospace;
-        --font-sans: "Inter", sans-serif;
+        --font-sans: "Inter Variable", sans-serif;
         
-        /* Compatibility Aliases */
-        --color-background: var(--color-vx-bg);
-        --color-foreground: var(--color-vx-text-primary);
-        --color-card: var(--color-vx-surface);
-        --color-border: var(--color-vx-border);
-        --color-primary: var(--color-vx-accent);
-        --color-muted-foreground: var(--color-vx-text-secondary);
+        --ease-spring: var(--ease-spring);
       }
       
-      /* ZERO RADIUS POLICY */
-      * { border-radius: 0 !important; }
-
-      /* FlexLayout Overrides */
-      .flexlayout__layout { background-color: var(--color-vx-bg) !important; }
+      /* FlexLayout Crystal Overrides */
+      .flexlayout__layout { 
+          background-color: transparent !important; 
+          top: 50px !important; /* Make room for Dynamic Island */
+          bottom: 60px !important; /* Make room for Dock */
+      }
       
       .flexlayout__splitter {
-        background-color: var(--color-vx-bg) !important; 
+        background-color: transparent !important; 
         border: none !important;
       }
-      .flexlayout__splitter:hover { background-color: var(--color-vx-accent) !important; }
-
+      
       .flexlayout__tabset {
-        background-color: var(--color-vx-bg) !important;
-        border: 1px solid var(--color-vx-border) !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
       }
       
       .flexlayout__tabset_header {
-        background-color: var(--color-vx-bg) !important;
-        border-bottom: 1px solid var(--color-vx-border) !important;
-        height: 24px !important;
-        padding-left: 0 !important;
+        display: none !important; /* Hide native headers for pure crystal look */
       }
       
-      /* Flat Text Tabs with Underline */
-      .flexlayout__tab_button {
-        background-color: transparent !important;
-        border: none !important;
-        border-bottom: 2px solid transparent !important;
-        color: var(--color-vx-text-secondary) !important;
-        font-family: var(--font-sans);
-        font-size: 10px !important;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding: 0 16px !important;
-        margin: 0 !important;
-        top: 0 !important;
-        height: 24px !important;
-        line-height: 24px !important;
-        opacity: 0.7;
+      .flexlayout__tab { 
+          background-color: transparent !important; 
       }
-      
-      .flexlayout__tab_button:hover {
-        opacity: 1;
-        color: var(--color-vx-text-primary) !important;
-      }
-      
-      .flexlayout__tab_button--selected {
-        background-color: transparent !important;
-        color: var(--color-vx-accent) !important;
-        border-bottom: 2px solid var(--color-vx-accent) !important;
-        opacity: 1;
-      }
-      
-      .flexlayout__tab { background-color: var(--color-vx-bg) !important; }
 
       .flexlayout__drag_rect {
-        background: var(--color-vx-accent-dim) !important;
-        border: 1px solid var(--color-vx-accent) !important;
+        background: var(--color-vx-accent) !important;
+        border-radius: 8px;
+        opacity: 0.3;
       }
     </style>
   </head>
   <body>
-    <div id="root" style="height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column;"></div>
+    <div id="root" style="height: 100vh; width: 100vw; overflow: hidden;"></div>
   </body>
 </html>
