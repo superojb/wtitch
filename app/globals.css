@@ -16,22 +16,52 @@ body {
   overflow: hidden;
   height: 100vh;
   width: 100vw;
+  margin: 0;
+  padding: 0;
 }
 
-/* Scrollbar Styling for WebKit */
+/* 
+  Hardened Industrial Scrollbars 
+  - Default: 2px width, Transparent Thumb (Invisible)
+  - Hover: 2px width, Slate-800 Thumb (Visible)
+*/
+
+/* WebKit (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 3px; /* Thin enough to be minimal, thick enough to grab */
+  height: 3px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #0f172a; 
+  background: transparent;
 }
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-  background: #334155; 
-  border-radius: 0;
+  background: transparent;
+  border-radius: 0; /* Industrial sharp edges */
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #475569; 
+
+/* Show scrollbar when hovering over the container */
+*:hover::-webkit-scrollbar-thumb {
+  background: #1e293b; /* Slate 800 */
+}
+
+*:hover::-webkit-scrollbar-thumb:hover {
+  background: #334155; /* Slate 700 on direct interaction */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+*:hover {
+  scrollbar-color: #1e293b transparent;
 }
 
 /* Global Utility Classes */

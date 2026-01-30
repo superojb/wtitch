@@ -41,10 +41,10 @@
 
       @theme {
         --color-background: #020617; /* Slate 950 */
-        --color-foreground: #f8fafc; /* Slate 50 */
+        --color-foreground: #f1f5f9; /* Slate 100 */
         
-        --color-card: #0f172a; /* Slate 900 */
-        --color-card-foreground: #f8fafc;
+        --color-card: #020617; /* Slate 950 (Unified BG) */
+        --color-card-foreground: #f1f5f9;
         
         --color-border: #1e293b; /* Slate 800 */
         --color-input: #1e293b;
@@ -52,10 +52,10 @@
         --color-primary: #06b6d4; /* Cyan 500 */
         --color-primary-foreground: #ffffff;
         
-        --color-muted: #1e293b;
+        --color-muted: #0f172a; /* Slate 900 */
         --color-muted-foreground: #94a3b8; /* Slate 400 */
         
-        --color-accent: #334155; /* Slate 700 */
+        --color-accent: #1e293b; /* Slate 800 */
         --color-accent-foreground: #f8fafc;
         
         --color-destructive: #ef4444;
@@ -87,29 +87,59 @@
         overflow: hidden;
       }
 
-      /* FlexLayout Industrial Overrides */
+      /* FlexLayout Zero-Gap Overrides */
       .flexlayout__layout {
         background-color: var(--color-background) !important;
+        /* Ensure no outer padding clips borders */
       }
+      
       .flexlayout__splitter {
-        background-color: #020617 !important;
-        border: 1px solid var(--color-border) !important;
+        background-color: var(--color-background) !important; 
+        border: none !important;
+        /* Splitter creates the gap */
       }
       .flexlayout__splitter:hover {
         background-color: var(--color-primary) !important;
       }
-      /* Flat Tabs */
+
+      /* Drag Feedback */
+      .flexlayout__drag_rect {
+        background-color: rgba(6, 182, 212, 0.15) !important; /* cyan-500/15 */
+        border: 2px solid #06b6d4 !important; /* cyan-500 */
+        border-radius: 0 !important; /* Sharp corners */
+        z-index: 9000 !important; /* Below Command Palette */
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.2) !important;
+      }
+      
+      .flexlayout__tab_button_trailing {
+        opacity: 0.5;
+      }
+
+      /* Flat Tabs & Panes - Zero Spacing Architecture */
       .flexlayout__tabset {
         background-color: var(--color-card) !important;
-        border: 1px solid var(--color-border) !important;
+        border: 1px solid var(--color-border) !important; /* 1px border is the ONLY separator */
         border-radius: 0 !important;
+        transition: border-color 0.15s ease;
+        padding: 0 !important;
+        margin: 0 !important;
       }
+      
+      /* Contextual Pane Highlighting */
+      .flexlayout__tabset:hover,
+      .flexlayout__tabset:focus-within {
+        border-color: rgba(22, 78, 99, 1) !important; /* Cyan 900 */
+        z-index: 10;
+      }
+
       .flexlayout__tabset_header {
         background-color: #020617 !important;
         border-bottom: 1px solid var(--color-border) !important;
         padding: 0 !important;
-        height: 28px !important;
+        height: 24px !important;
+        margin: 0 !important;
       }
+      
       .flexlayout__tab_button {
         background-color: transparent !important;
         border: none !important;
@@ -117,31 +147,37 @@
         color: var(--color-muted-foreground) !important;
         border-radius: 0 !important;
         font-family: var(--font-sans);
-        font-size: 11px !important;
+        font-size: 10px !important;
         font-weight: 500;
-        padding: 0 12px !important;
+        padding: 0 10px !important;
         margin: 0 !important;
         top: 0 !important;
-        height: 27px !important;
-        line-height: 27px !important;
+        height: 23px !important;
+        line-height: 23px !important;
+        opacity: 0.7;
+        transition: opacity 0.15s, background-color 0.15s;
       }
       .flexlayout__tab_button:hover {
         background-color: rgba(255,255,255,0.03) !important;
         color: var(--color-foreground) !important;
+        opacity: 1;
       }
       .flexlayout__tab_button--selected {
         background-color: var(--color-card) !important;
         color: var(--color-primary) !important;
-        border-bottom: 2px solid var(--color-primary) !important;
+        border-bottom: 1px solid var(--color-primary) !important;
+        opacity: 1;
       }
+      
       .flexlayout__tab {
         background-color: var(--color-card) !important;
         border-radius: 0 !important;
+        padding: 0 !important; /* Zero padding in content area */
       }
     </style>
     
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
     </style>
   </head>
   <body>

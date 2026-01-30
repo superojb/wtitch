@@ -5,6 +5,8 @@ import { uiStore } from './store/uiStore';
 import { Header } from './components/Header';
 import { TradingLayout } from './components/TradingLayout';
 import { DiagnosticOverlay } from './components/DiagnosticOverlay';
+import { CommandPalette } from './components/CommandPalette';
+import { GlobalContextMenu } from './components/ui/context-menu';
 import { db } from './db/db';
 import { TickerData, SymbolConfig } from './types';
 
@@ -149,6 +151,8 @@ const App: React.FC = () => {
                </div>
           </div>
       </footer>
+      <CommandPalette />
+      <GlobalContextMenu />
       <DiagnosticOverlay />
     </div>
   );
