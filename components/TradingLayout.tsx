@@ -62,23 +62,34 @@ export const TradingLayout = () => {
 
   // Load layout from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    let json = defaultLayout;
-    
-    if (saved) {
-      try {
-        json = JSON.parse(saved);
-      } catch(e) { 
-        console.error("Failed to parse saved layout", e); 
-      }
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        let json = defaultLayout;
+        
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Simple validation to ensure it's a valid model object
+                if (parsed && parsed.layout) {
+                    json = parsed;
+                }
+            } catch(e) { 
+                console.warn("Failed to parse saved layout, resetting to default", e); 
+            }
+        }
+        setModel(Model.fromJson(json));
+    } catch (err) {
+        console.error("Critical Layout Error:", err);
+        // Fallback
+        setModel(Model.fromJson(defaultLayout));
     }
-    
-    setModel(Model.fromJson(json));
   }, []);
 
   // Save layout to localStorage whenever it changes
   const onModelChange = (model: Model) => {
-     localStorage.setItem(STORAGE_KEY, JSON.stringify(model.toJson()));
+     try {
+         localStorage.setItem(STORAGE_KEY, JSON.stringify(model.toJson()));
+     } catch(e) { console.error("Save Layout Error", e); }
   };
 
   const factory = (node: TabNode) => {
@@ -87,7 +98,7 @@ export const TradingLayout = () => {
     // Render Components based on ID
     if (component === "MarketWatch") {
         return (
-            <div className="h-full w-full overflow-hidden flex flex-col">
+            <div className="h-full w-full overflow-hidden flex flex-col bg-card">
                 <MarketOverview />
             </div>
         );
@@ -99,23 +110,27 @@ export const TradingLayout = () => {
     
     if (component === "OrderBook") {
          return (
-            <div className="h-full w-full flex items-center justify-center text-muted-foreground bg-card text-xs">
-                 Order Book Placeholder
+            <div className="h-full w-full flex items-center justify-center text-muted-foreground bg-card text-[10px] font-mono">
+                 ORDER BOOK NOT CONNECTED
             </div>
         );
     }
 
-    return <div className="p-2 text-xs">Unknown Component: {component}</div>;
+    return <div className="p-2 text-xs text-red-500">Unknown: {component}</div>;
   }
 
-  if (!model) return null;
+  if (!model) return <div className="h-full w-full bg-background flex items-center justify-center text-xs">Loading Layout...</div>;
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
         <Layout 
             model={model} 
             factory={factory} 
             onModelChange={onModelChange} 
+            classNameMapper={(className) => {
+                if (className === 'flexlayout__layout') return 'bg-background';
+                return className;
+            }}
         />
     </div>
   )

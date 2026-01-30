@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" style="height: 100%; overflow: hidden;">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SwayVex Terminal</title>
-    <!-- Tailwind CSS v4 Browser Script -->
+    
+    <!-- Tailwind CSS v4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
-    <!-- FlexLayout Dynamic Stylesheet (Placeholder ID) -->
+    <!-- FlexLayout CSS (Dark default) -->
     <link id="flexlayout-stylesheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css" />
 
     <style type="text/tailwindcss">
@@ -38,11 +39,6 @@
         
         --color-card: var(--card);
         --color-card-foreground: var(--card-foreground);
-        
-        --color-flash-up: var(--flash-up);
-        --color-flash-down: var(--flash-down);
-
-        --font-mono: "JetBrains Mono", monospace;
         
         --radius: var(--radius);
         
@@ -89,15 +85,14 @@
         --input: hsl(214.3 31.8% 91.4%);
         --ring: hsl(221.2 83.2% 53.3%);
         
-        /* Industrial Radius: 2px */
-        --radius: 0.125rem; 
+        --radius: 0.125rem;
       }
 
       .dark {
-        --background: hsl(222.2 20% 5%); /* Darker background */
+        --background: hsl(222.2 20% 5%);
         --foreground: hsl(210 40% 98%);
         
-        --card: hsl(222.2 25% 8%); /* Slightly lighter card */
+        --card: hsl(222.2 25% 8%);
         --card-foreground: hsl(210 40% 98%);
         
         --popover: hsl(222.2 84% 4.9%);
@@ -130,24 +125,20 @@
         }
       }
 
-      /* High-Density FlexLayout Overrides */
+      /* FlexLayout Density Overrides */
       .flexlayout__layout {
         @apply bg-background !important;
       }
-
       .flexlayout__tabset {
         @apply bg-card border-l border-border/20 !important;
       }
-
       .flexlayout__tabset_header {
         @apply bg-muted/10 border-b border-border/40 h-[22px] !important;
         padding: 0 !important;
       }
-      
       .flexlayout__tabset_tabbar_outer {
          @apply bg-transparent !important;
       }
-
       .flexlayout__tab_button {
         @apply bg-transparent text-muted-foreground text-[10px] font-medium tracking-tight px-3 py-0 border-r border-border/20 rounded-none hover:bg-muted/10 transition-colors !important;
         margin: 0 !important;
@@ -155,19 +146,15 @@
         height: 22px !important;
         line-height: 22px !important;
       }
-
       .flexlayout__tab_button--selected {
         @apply bg-card text-foreground border-t-2 border-t-primary !important;
       }
-
       .flexlayout__splitter {
         @apply bg-background hover:bg-primary/50 transition-colors !important;
       }
-
       .flexlayout__splitter:hover {
         @apply bg-primary !important;
       }
-
       .flexlayout__tab {
         @apply bg-card !important;
       }
@@ -178,26 +165,45 @@
     </style>
     
     <script type="importmap">
-{
-  "imports": {
-    "react-dom": "https://esm.sh/react-dom@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0?external=react,react-dom",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0?external=react,react-dom",
-    "clsx": "https://esm.sh/clsx@^2.1.1?external=react,react-dom",
-    "dexie": "https://esm.sh/dexie@^4.2.1",
-    "big.js": "https://esm.sh/big.js@^7.0.1",
-    "valtio": "https://esm.sh/valtio@^2.3.0?external=react,react-dom",
-    "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
-    "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom",
-    "klinecharts": "https://esm.sh/klinecharts@^9.8.12"
-  }
-}
-</script>
-</head>
-  <body class="bg-background text-foreground antialiased overflow-hidden h-screen w-screen">
+    {
+      "imports": {
+        "react-dom": "https://esm.sh/react-dom@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "lucide-react": "https://esm.sh/lucide-react@^0.563.0?external=react,react-dom",
+        "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0?external=react,react-dom",
+        "clsx": "https://esm.sh/clsx@^2.1.1?external=react,react-dom",
+        "dexie": "https://esm.sh/dexie@^4.2.1",
+        "big.js": "https://esm.sh/big.js@^7.0.1",
+        "valtio": "https://esm.sh/valtio@^2.3.0?external=react,react-dom",
+        "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
+        "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom",
+        "klinecharts": "https://esm.sh/klinecharts@^9.8.12"
+      }
+    }
+    </script>
+  </head>
+  <body class="bg-background text-foreground antialiased overflow-hidden h-screen w-screen relative">
     <div id="root" class="h-full w-full"></div>
+    <script>
+      // Global Error Trap for Blank Page Diagnosis
+      window.addEventListener('error', function(event) {
+        console.error('Global Error:', event.error);
+        if (document.body && document.body.children.length === 1) {
+            // If body is empty except root (which is empty), show error
+            const errDiv = document.createElement('div');
+            errDiv.style.position = 'absolute';
+            errDiv.style.top = '0';
+            errDiv.style.left = '0';
+            errDiv.style.background = '#330000';
+            errDiv.style.color = '#ff9999';
+            errDiv.style.padding = '20px';
+            errDiv.style.zIndex = '9999';
+            errDiv.innerText = 'Application Crash: ' + (event.error ? event.error.message : 'Unknown Error');
+            document.body.appendChild(errDiv);
+        }
+      });
+    </script>
   </body>
 </html>
