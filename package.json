@@ -18,7 +18,8 @@
     "big.js": "^7.0.1",
     "valtio": "^2.3.0",
     "react-window": "1.8.10",
-    "flexlayout-react": "0.7.15"
+    "flexlayout-react": "0.7.15",
+    "klinecharts": "^9.8.12"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

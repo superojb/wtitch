@@ -8,7 +8,7 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   // Ultra-compact badge: fixed height, no vertical padding
-  const baseStyles = "inline-flex items-center justify-center rounded-[2px] border px-1 h-4 text-[10px] font-bold uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-mono leading-none";
+  const baseStyles = "inline-flex items-center justify-center rounded-[2px] border px-1 h-3.5 text-[9px] font-bold uppercase transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 font-mono leading-none";
 
   const variants = {
     default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",

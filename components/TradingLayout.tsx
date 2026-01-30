@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Model, TabNode, IJsonModel } from 'flexlayout-react';
 import { MarketOverview } from './MarketOverview';
-import { useSnapshot } from 'valtio';
-import { marketStore } from '../store/marketStore';
+import { Chart } from './Chart';
 
 const defaultLayout: IJsonModel = {
   global: {
@@ -95,16 +94,7 @@ export const TradingLayout = () => {
     }
     
     if (component === "Chart") {
-        return (
-            <div className="h-full w-full flex items-center justify-center text-muted-foreground bg-card">
-                 <div className="text-center space-y-4">
-                    <h2 className="text-xl font-semibold">Chart Area</h2>
-                    <p className="max-w-md mx-auto text-sm">
-                        Select a ticker from the Market Watch to load the chart.
-                    </p>
-                </div>
-            </div>
-        );
+        return <Chart />;
     }
     
     if (component === "OrderBook") {

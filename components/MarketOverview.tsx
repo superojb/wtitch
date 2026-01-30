@@ -1,43 +1,45 @@
-import React, { memo, useRef, useEffect, useState, useLayoutEffect } from 'react';
+import React, { memo, useRef, useLayoutEffect, useState } from 'react';
 import { useSnapshot } from 'valtio';
-import * as ReactWindow from 'react-window';
+import * as ReactWindowNamespace from 'react-window';
+import Big from 'big.js'; 
 import { marketStore, selectSymbol } from '../store/marketStore';
 import { BigFormatter } from '../services/bigFormatter';
 import { cn } from '../lib/utils';
 import { TickerData } from '../types';
 
-// Safe access to FixedSizeList and areEqual from the module namespace
-const List = (ReactWindow as any).FixedSizeList || (ReactWindow as any).default?.FixedSizeList || ReactWindow.default;
-const safeAreEqual = (ReactWindow as any).areEqual || (ReactWindow as any).default?.areEqual || ((prev: any, next: any) => prev === next);
+// Robust ESM/CJS interop for react-window
+const ReactWindow = ReactWindowNamespace as any;
+// Ensure we get the actual component class/function, not the module object
+const List = ReactWindow.FixedSizeList || ReactWindow.default?.FixedSizeList;
+const safeAreEqual = ReactWindow.areEqual || ReactWindow.default?.areEqual || ((prev: any, next: any) => prev === next);
 
-// --- Price Cell Component for Flash Effect ---
-const PriceCell = memo(({ value }: { value: string }) => {
+// --- Price Cell Component with Low-CPU Flash ---
+const PriceCell = memo(({ value, tickSize }: { value: string, tickSize: string }) => {
   const prevValue = useRef(value);
-  const [flash, setFlash] = useState<'up' | 'down' | null>(null);
+  const directionRef = useRef<'up' | 'down' | null>(null);
 
-  useEffect(() => {
-    if (value !== prevValue.current) {
-      const current = parseFloat(value);
-      const prev = parseFloat(prevValue.current);
-      if (current > prev) setFlash('up');
-      else if (current < prev) setFlash('down');
-      
+  // Synchronous calculation before render to determine direction
+  if (value !== prevValue.current) {
+      try {
+          const current = new Big(value);
+          const prev = new Big(prevValue.current);
+          if (current.gt(prev)) directionRef.current = 'up';
+          else if (current.lt(prev)) directionRef.current = 'down';
+      } catch(e) {}
       prevValue.current = value;
+  }
 
-      const timer = setTimeout(() => setFlash(null), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [value]);
-
-  const textColor = flash === 'up' 
-    ? 'text-emerald-500 bg-emerald-500/10' 
-    : flash === 'down' 
-      ? 'text-red-500 bg-red-500/10' 
-      : 'text-foreground';
+  const animClass = directionRef.current === 'up' 
+    ? 'animate-flash-up' 
+    : directionRef.current === 'down' 
+      ? 'animate-flash-down' 
+      : '';
 
   return (
-    <div className={cn("text-right font-mono transition-colors duration-200 px-1 rounded-sm", textColor)}>
-      {BigFormatter.formatPrice(value, "0.01")}
+    <div className="text-right font-mono px-1 rounded-sm">
+      <span key={value} className={cn("inline-block", animClass)}>
+        {BigFormatter.formatPrice(value, tickSize)}
+      </span>
     </div>
   );
 });
@@ -47,6 +49,9 @@ const Row = memo(({ index, style, data }: any) => {
   const symbol = data[index];
   const snap = useSnapshot(marketStore);
   const ticker = snap.tickers[symbol] as TickerData | undefined;
+  const meta = snap.symbolMetadata[symbol];
+  const tickSize = meta?.tickSize || "0.01"; 
+  
   const isSelected = snap.selectedSymbol === symbol;
 
   const handleSelect = () => {
@@ -62,21 +67,25 @@ const Row = memo(({ index, style, data }: any) => {
     );
   }
 
-  const change = parseFloat(ticker.priceChangePercent);
-  const changeColor = change >= 0 ? 'text-emerald-500' : 'text-red-500';
+  let changeColor = 'text-foreground';
+  try {
+      const change = new Big(ticker.priceChangePercent);
+      if (change.gt(0)) changeColor = 'text-emerald-500';
+      else if (change.lt(0)) changeColor = 'text-red-500';
+  } catch(e) { /* ignore */ }
 
   return (
     <div 
       style={style} 
       onClick={handleSelect}
       className={cn(
-        "flex items-center text-[11px] border-b border-border/40 hover:bg-accent/50 cursor-pointer transition-colors px-1",
+        "flex items-center text-[10px] border-b border-border/20 hover:bg-accent/50 cursor-pointer transition-colors px-1",
         isSelected && "bg-accent hover:bg-accent"
       )}
     >
       <div className="w-[28%] font-bold text-foreground truncate pl-1" title={symbol}>{symbol}</div>
       <div className="w-[22%]">
-         <PriceCell value={ticker.lastPrice} />
+         <PriceCell value={ticker.lastPrice} tickSize={tickSize} />
       </div>
       <div className={cn("w-[18%] text-right font-mono", changeColor)}>
         {ticker.priceChangePercent}%
@@ -93,12 +102,12 @@ const Row = memo(({ index, style, data }: any) => {
 
 // --- Header Component ---
 const MarketHeader = () => (
-  <div className="flex items-center px-1 h-6 text-[10px] font-semibold text-muted-foreground bg-muted/20 border-b border-border shrink-0 select-none">
-    <div className="w-[28%] pl-1">Symbol</div>
-    <div className="w-[22%] text-right">Price</div>
+  <div className="flex items-center px-1 h-5 text-[9px] font-semibold text-muted-foreground bg-muted/20 border-b border-border shrink-0 select-none uppercase tracking-wider">
+    <div className="w-[28%] pl-1">Asset</div>
+    <div className="w-[22%] text-right">Last</div>
     <div className="w-[18%] text-right">24h%</div>
     <div className="w-[18%] text-right">Vol</div>
-    <div className="w-[14%] text-right pr-1">Fund</div>
+    <div className="w-[14%] text-right pr-1">Rate</div>
   </div>
 );
 
@@ -109,8 +118,6 @@ const useContainerSize = () => {
 
   useLayoutEffect(() => {
     if (!ref.current) return;
-    
-    // ResizeObserver is more robust for FlexLayout resizing events
     const observer = new ResizeObserver((entries) => {
         for (const entry of entries) {
             setSize({
@@ -119,9 +126,7 @@ const useContainerSize = () => {
             });
         }
     });
-
     observer.observe(ref.current);
-    
     return () => observer.disconnect();
   }, []);
 
@@ -142,9 +147,8 @@ export const MarketOverview: React.FC = () => {
     );
   }
 
-  // Fallback if List isn't loaded correctly
   if (!List) {
-      return <div className="p-2 text-[10px] text-red-500">Failed to load virtual list.</div>
+      return <div className="p-2 text-[10px] text-red-500">Failed to load virtual list. Library resolution error.</div>
   }
 
   return (
@@ -155,9 +159,9 @@ export const MarketOverview: React.FC = () => {
             <List
               height={size.height}
               itemCount={symbols.length}
-              itemSize={24} 
+              itemSize={22} 
               width={size.width}
-              itemData={symbols}
+              itemData={symbols} 
               className="scrollbar-hide"
             >
               {Row}
