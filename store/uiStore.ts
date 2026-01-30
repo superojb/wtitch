@@ -1,8 +1,11 @@
 import { proxy } from 'valtio';
 
+export type ChartLayoutMode = 'single' | '2x2' | '2x4';
+
 export interface UIState {
   theme: 'dark' | 'light';
   isCommandPaletteOpen: boolean;
+  chartLayout: ChartLayoutMode;
   contextMenu: {
     isOpen: boolean;
     x: number;
@@ -14,6 +17,7 @@ export interface UIState {
 export const uiStore = proxy<UIState>({
   theme: 'dark',
   isCommandPaletteOpen: false,
+  chartLayout: 'single', // Default 1x1
   contextMenu: {
     isOpen: false,
     x: 0,
@@ -26,12 +30,8 @@ export const toggleTheme = () => {
   uiStore.theme = uiStore.theme === 'dark' ? 'light' : 'dark';
 };
 
-export const setTheme = (theme: 'dark' | 'light') => {
-    uiStore.theme = theme;
-};
-
-export const toggleCommandPalette = () => {
-  uiStore.isCommandPaletteOpen = !uiStore.isCommandPaletteOpen;
+export const setChartLayout = (mode: ChartLayoutMode) => {
+    uiStore.chartLayout = mode;
 };
 
 export const setCommandPalette = (isOpen: boolean) => {

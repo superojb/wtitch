@@ -1,71 +1,65 @@
 @import "tailwindcss";
 
-/* 
-  Configuration is handled in the HTML head style block for v4 browser runtime compatibility.
-  This file serves as a reference for any additional non-Tailwind global styles if needed.
-*/
-
 :root {
-  color-scheme: dark;
+  /* Default Dark Mode (Midnight Base) */
+  --color-vx-bg: #020617;        
+  --color-vx-surface: #0b1120;   
+  --color-vx-border: rgba(30, 41, 59, 0.5); 
+  --color-vx-accent: #22d3ee;    
+  --color-vx-accent-dim: rgba(34, 211, 238, 0.1);
+  
+  --color-vx-up: #10b981;        
+  --color-vx-down: #f43f5e;      
+  --color-vx-up-bg: rgba(16, 185, 129, 0.1);
+  --color-vx-down-bg: rgba(244, 63, 94, 0.1);
+  
+  --color-vx-text-primary: #f1f5f9;
+  --color-vx-text-secondary: #94a3b8;
+}
+
+:root.light {
+  /* Light Mode (Quant Clean) */
+  --color-vx-bg: #f8fafc;
+  --color-vx-surface: #ffffff;
+  --color-vx-border: #e2e8f0;
+  --color-vx-accent: #0891b2;
+  --color-vx-accent-dim: rgba(8, 145, 178, 0.1);
+  
+  --color-vx-up: #059669;
+  --color-vx-down: #e11d48;
+  --color-vx-up-bg: rgba(5, 150, 105, 0.1);
+  --color-vx-down-bg: rgba(225, 29, 72, 0.1);
+  
+  --color-vx-text-primary: #0f172a;
+  --color-vx-text-secondary: #64748b;
 }
 
 body {
+  background-color: var(--color-vx-bg);
+  color: var(--color-vx-text-primary);
   font-family: 'Inter', sans-serif;
-  background-color: #020617;
-  color: #f8fafc;
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
 }
 
-/* 
-  Hardened Industrial Scrollbars 
-  - Default: 2px width, Transparent Thumb (Invisible)
-  - Hover: 2px width, Slate-800 Thumb (Visible)
-*/
-
-/* WebKit (Chrome, Edge, Safari) */
-::-webkit-scrollbar {
-  width: 3px; /* Thin enough to be minimal, thick enough to grab */
-  height: 3px;
+/* Animations */
+@keyframes flash-up {
+  0% { background-color: var(--color-vx-up-bg); color: var(--color-vx-up); }
+  100% { background-color: transparent; color: inherit; }
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+@keyframes flash-down {
+  0% { background-color: var(--color-vx-down-bg); color: var(--color-vx-down); }
+  100% { background-color: transparent; color: inherit; }
 }
 
-::-webkit-scrollbar-corner {
-  background: transparent;
+.animate-flash-up {
+  animation: flash-up 600ms ease-out;
 }
 
-::-webkit-scrollbar-thumb {
-  background: transparent;
-  border-radius: 0; /* Industrial sharp edges */
+.animate-flash-down {
+  animation: flash-down 600ms ease-out;
 }
 
-/* Show scrollbar when hovering over the container */
-*:hover::-webkit-scrollbar-thumb {
-  background: #1e293b; /* Slate 800 */
-}
-
-*:hover::-webkit-scrollbar-thumb:hover {
-  background: #334155; /* Slate 700 on direct interaction */
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-*:hover {
-  scrollbar-color: #1e293b transparent;
-}
-
-/* Global Utility Classes */
-.font-mono {
-  font-family: 'JetBrains Mono', monospace;
-  font-variant-numeric: tabular-nums;
-}
+/* Scrollbar elimination */
+::-webkit-scrollbar { width: 0px; height: 0px; }
+* { scrollbar-width: none; }

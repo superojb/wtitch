@@ -7,6 +7,7 @@ import { TradingLayout } from './components/TradingLayout';
 import { DiagnosticOverlay } from './components/DiagnosticOverlay';
 import { CommandPalette } from './components/CommandPalette';
 import { GlobalContextMenu } from './components/ui/context-menu';
+import { MarketTicker } from './components/MarketTicker';
 import { db } from './db/db';
 import { TickerData, SymbolConfig } from './types';
 
@@ -20,8 +21,10 @@ const ThemeManager = () => {
         
         if (theme === 'dark') {
             html.classList.add('dark');
+            html.classList.remove('light');
             if (flexLayoutLink) flexLayoutLink.href = "https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css";
         } else {
+            html.classList.add('light');
             html.classList.remove('dark');
             if (flexLayoutLink) flexLayoutLink.href = "https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/light.css";
         }
@@ -31,20 +34,16 @@ const ThemeManager = () => {
 };
 
 const App: React.FC = () => {
-  const { connectionStatus, clockOffset } = useSnapshot(marketStore);
+  const { connectionStatus } = useSnapshot(marketStore);
   const [initDb, setInitDb] = useState(false);
 
   // Simulate startup logic
   useEffect(() => {
     const init = async () => {
-      // Simulate Database Initialization
       await db.open();
-      
-      // Load symbols from Dexie to Store
       const storedSymbols = await db.symbols.toArray();
       const symbolList = storedSymbols.map(s => s.symbol).sort();
       
-      // Create metadata map for O(1) access
       const meta = storedSymbols.reduce((acc, curr) => {
           acc[curr.symbol] = curr;
           return acc;
@@ -52,10 +51,8 @@ const App: React.FC = () => {
 
       setSymbols(symbolList);
       setSymbolMetadata(meta);
-      
       setInitDb(true);
 
-      // Simulate connection delay
       updateConnectionStatus('connecting');
       setTimeout(() => {
         updateConnectionStatus('connected');
@@ -69,88 +66,48 @@ const App: React.FC = () => {
     const interval = setInterval(() => {
         if (marketStore.connectionStatus === 'connected') {
             const updates: TickerData[] = [];
-            
-            // Batch generation
-            updates.push({
-                symbol: 'BTCUSDT',
-                lastPrice: (65000 + (Math.random() - 0.5) * 100).toString(),
-                priceChangePercent: (Math.random() * 5).toFixed(2),
-                volume: (Math.random() * 1000).toString(),
-                quoteVolume: (Math.random() * 1000000).toString(),
-                fundingRate: "0.0100"
+            const syms = marketStore.symbols.length > 0 ? marketStore.symbols : ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'AVAXUSDT'];
+            syms.forEach(sym => {
+                updates.push({
+                    symbol: sym,
+                    lastPrice: (Math.random() * 1000).toFixed(2),
+                    priceChangePercent: (Math.random() * 10 - 5).toFixed(2),
+                    volume: (Math.random() * 10000).toString(),
+                    quoteVolume: (Math.random() * 1000000).toString(),
+                    fundingRate: "0.0100"
+                });
             });
-            updates.push({
-                symbol: 'ETHUSDT',
-                lastPrice: (3400 + (Math.random() - 0.5) * 20).toString(),
-                priceChangePercent: (Math.random() * 5 - 2).toFixed(2),
-                volume: (Math.random() * 5000).toString(),
-                quoteVolume: (Math.random() * 500000).toString(),
-                fundingRate: "0.0084"
-            });
-            updates.push({
-                symbol: 'SOLUSDT',
-                lastPrice: (145 + (Math.random() - 0.5) * 1).toString(),
-                priceChangePercent: (Math.random() * 10 - 4).toFixed(2),
-                volume: (Math.random() * 20000).toString(),
-                quoteVolume: (Math.random() * 200000).toString(),
-                fundingRate: "0.0125"
-            });
-            updates.push({
-                symbol: 'AVAXUSDT',
-                lastPrice: (35 + (Math.random() - 0.5) * 0.5).toString(),
-                priceChangePercent: (Math.random() * 6 - 3).toFixed(2),
-                volume: (Math.random() * 15000).toString(),
-                quoteVolume: (Math.random() * 100000).toString(),
-                fundingRate: "0.0050"
-            });
-
-            // Perform single batch update
             batchUpdateTickers(updates);
-            
-            // Trigger lazy DB sync (won't run if already scheduled)
             scheduleDbSync();
         }
-    }, 500); // 500ms update rate
+    }, 500); 
 
     return () => clearInterval(interval);
   }, []);
 
   if (!initDb) {
-      // Return null here to keep the "System Loading..." message from index.tsx visible 
-      // until we are ready to take over the DOM.
-      // Alternatively, we render a react-based loader that replaces the HTML one.
-      return <div className="flex h-full w-full items-center justify-center bg-background text-foreground animate-pulse font-mono text-xs">Initializing Core DB...</div>;
+      return <div className="flex h-full w-full items-center justify-center bg-vx-bg text-vx-text-primary animate-pulse font-mono text-xs">KERNEL INITIALIZING...</div>;
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-background text-foreground overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-vx-bg text-vx-text-primary overflow-hidden">
       <ThemeManager />
       <Header />
       <main className="flex-1 overflow-hidden relative">
         <TradingLayout />
       </main>
       
-      {/* Global Status Bar */}
-      <footer className="h-5 bg-muted/20 border-t border-border flex items-center justify-between px-2 text-[9px] font-mono text-muted-foreground shrink-0 select-none">
-          <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <span className={connectionStatus === 'connected' ? 'text-emerald-500' : 'text-amber-500'}>●</span>
-                <span>{connectionStatus.toUpperCase()}</span>
-              </div>
-              <div className="hidden sm:block">
-                  <span className="opacity-50">LATENCY:</span> 24ms
-              </div>
+      {/* Footer: Market Ticker + Status */}
+      <footer className="h-6 bg-vx-bg border-t border-vx-border flex items-center justify-between shrink-0 select-none overflow-hidden relative z-50">
+          <div className="w-[85px] flex items-center justify-center h-full bg-vx-surface border-r border-vx-border shrink-0">
+             <span className={connectionStatus === 'connected' ? 'text-vx-up text-[9px] font-bold' : 'text-vx-down text-[9px] font-bold'}>
+                {connectionStatus.toUpperCase()}
+             </span>
           </div>
-          
-          <div className="flex items-center gap-4">
-               <div>
-                  <span className="opacity-50">OFFSET:</span> {clockOffset}ms
-               </div>
-               <div>
-                   <span className="opacity-50">MEM:</span> 24MB
-               </div>
-          </div>
+
+          <MarketTicker />
       </footer>
+      
       <CommandPalette />
       <GlobalContextMenu />
       <DiagnosticOverlay />

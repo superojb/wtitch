@@ -1,53 +1,57 @@
-import React, { useLayoutEffect, useRef, useEffect } from 'react';
+import React, { useLayoutEffect, useRef, useEffect, memo } from 'react';
 import * as klinecharts from 'klinecharts';
 import { useSnapshot } from 'valtio';
-import { marketStore } from '../store/marketStore';
+import { marketStore, selectSymbol } from '../store/marketStore';
+import { uiStore } from '../store/uiStore';
+import { cn } from '../lib/utils';
 
-// Define explicit interface to satisfy TypeScript if library types are incomplete or mismatched
-interface KlineChartInstance {
-    applyNewData: (data: any[]) => void;
-    updateData: (data: any) => void;
-    resize: () => void;
-    [key: string]: any;
+interface ChartProps {
+    symbol?: string | null;
+    isActive?: boolean;
 }
 
-export const Chart: React.FC = () => {
+const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartInstanceRef = useRef<KlineChartInstance | null>(null);
-  const { selectedSymbol, tickers, clockOffset } = useSnapshot(marketStore);
+  const chartInstanceRef = useRef<any | null>(null);
+  const { tickers, clockOffset } = useSnapshot(marketStore);
+  const { theme } = useSnapshot(uiStore);
 
+  // Layout Effect for Init
   useLayoutEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // Guard against import failures
-    if (!klinecharts.init) {
-        console.error("klinecharts library not loaded correctly");
-        return;
-    }
+    // determine colors based on theme (simple check)
+    const isDark = document.documentElement.classList.contains('dark');
+    const bg = isDark ? '#020617' : '#f8fafc';
+    const gridColor = isDark ? 'rgba(30, 41, 59, 0.5)' : '#e2e8f0';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
 
-    // Initialize chart using namespace access
-    // Cast to unknown first then to custom interface to avoid 'conversion of type' errors
+    // Initialize chart
+    // Casting to any to avoid TypeScript errors with applyNewData if types are incomplete
     const chart = klinecharts.init(chartContainerRef.current, {
         styles: {
             grid: {
-                horizontal: { color: 'rgba(255, 255, 255, 0.1)' },
-                vertical: { color: 'rgba(255, 255, 255, 0.1)' }
+                horizontal: { color: gridColor, style: 'dashed', dashedValue: [2, 2] },
+                vertical: { color: gridColor, style: 'dashed', dashedValue: [2, 2] }
             },
             candle: {
                 bar: {
-                    upColor: '#10b981',
-                    downColor: '#ef4444',
-                    noChangeColor: '#888888'
-                }
-            }
+                    upColor: isDark ? '#10b981' : '#059669',
+                    downColor: isDark ? '#f43f5e' : '#e11d48',
+                    noChangeColor: textColor
+                },
+            },
+            xAxis: { tickText: { color: textColor, family: 'JetBrains Mono' } },
+            yAxis: { tickText: { color: textColor, family: 'JetBrains Mono' } }
         }
-    }) as unknown as KlineChartInstance;
+    }) as any;
     
     chartInstanceRef.current = chart;
     
-    const now = Date.now() + marketStore.clockOffset;
-    const mockData = Array.from({ length: 100 }).map((_, i) => ({
-      timestamp: now - (100 - i) * 60 * 1000,
+    // Initial Dummy Data
+    const now = Date.now() + clockOffset;
+    const mockData = Array.from({ length: 150 }).map((_, i) => ({
+      timestamp: now - (150 - i) * 60 * 1000,
       open: 50000 + Math.random() * 1000,
       high: 51000 + Math.random() * 1000,
       low: 49000 + Math.random() * 1000,
@@ -55,7 +59,6 @@ export const Chart: React.FC = () => {
       volume: Math.random() * 100,
     }));
     
-    // Call method on the typed instance
     chart?.applyNewData(mockData);
 
     const resizeObserver = new ResizeObserver(() => {
@@ -65,52 +68,41 @@ export const Chart: React.FC = () => {
 
     return () => {
       resizeObserver.disconnect();
-      if (chartInstanceRef.current) {
-        klinecharts.dispose(chartContainerRef.current!); 
-        chartInstanceRef.current = null;
-      }
+      klinecharts.dispose(chartContainerRef.current!); 
     };
-  }, []); 
+  }, [theme]); // Re-init on theme change
 
+  // Data Update Effect
   useEffect(() => {
-      if (chartInstanceRef.current && selectedSymbol) {
-          // In production: Fetch klines from Dexie/API here
-      }
-  }, [selectedSymbol]);
-
-  const currentTicker = selectedSymbol ? tickers[selectedSymbol] : null;
-  
-  useEffect(() => {
-      if (!chartInstanceRef.current || !currentTicker) return;
-
-      const price = parseFloat(currentTicker.lastPrice);
+      if (!chartInstanceRef.current || !symbol || !tickers[symbol]) return;
+      const t = tickers[symbol];
+      const price = parseFloat(t.lastPrice);
       const timestamp = Date.now() + clockOffset;
 
+      // Ensure updateData is called on the instance
       chartInstanceRef.current.updateData({
           timestamp,
-          open: price, 
-          high: price,
-          low: price,
-          close: price,
-          volume: parseFloat(currentTicker.volume) / 1000
+          open: price, high: price, low: price, close: price,
+          volume: parseFloat(t.volume) / 1000
       });
+  }, [tickers[symbol || ''], clockOffset]); // Only re-run if THIS symbol updates
 
-  }, [currentTicker, clockOffset]); 
-
-  if (!selectedSymbol) {
-      return (
-          <div className="h-full w-full flex items-center justify-center text-xs text-muted-foreground bg-card">
-              Select a symbol to view chart
-          </div>
-      );
-  }
+  if (!symbol) return <div className="h-full w-full bg-vx-surface" />;
 
   return (
-    <div className="h-full w-full bg-card relative">
-        <div className="absolute top-2 left-2 z-10 bg-background/80 backdrop-blur px-2 py-1 rounded border border-border">
-            <h3 className="text-xs font-bold">{selectedSymbol}</h3>
+    <div 
+        className={cn(
+            "h-full w-full relative group transition-all duration-200",
+            isActive ? "border-2 border-vx-accent z-10" : "border border-transparent hover:border-vx-border"
+        )}
+        onClick={() => selectSymbol(symbol)}
+    >
+        <div className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-vx-bg/80 backdrop-blur border border-vx-border">
+            <span className="text-[10px] font-bold font-mono text-vx-accent">{symbol}</span>
         </div>
         <div ref={chartContainerRef} className="h-full w-full" />
     </div>
   );
 };
+
+export const Chart = memo(ChartComponent);

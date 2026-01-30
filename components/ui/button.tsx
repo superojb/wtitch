@@ -12,20 +12,20 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "xs", isLoading, children, ...props }, ref) => {
     
-    // Base styles: removed reduced font size to text-xs globally for buttons
-    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-[2px] font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 select-none";
+    // Industrial Standard: Rounded-NONE
+    const baseStyles = "inline-flex items-center justify-center whitespace-nowrap rounded-none font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 select-none";
     
     // Variants
     const variants = {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm",
-      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+      default: "bg-primary text-primary-foreground hover:bg-primary/90",
+      destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
       outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
       secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
       ghost: "hover:bg-accent hover:text-accent-foreground",
       link: "text-primary underline-offset-4 hover:underline",
     };
 
-    // Sizes - High Density Trading Terminal Standard
+    // Sizes
     const sizes = {
       default: "h-7 px-3 text-xs",       
       sm: "h-6 px-2 text-[11px]",        
