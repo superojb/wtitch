@@ -1,0 +1,5 @@
+{
+  "name": "Copy of SwayVex Terminal",
+  "description": "High-performance quantitative trading terminal scaffolding featuring Valtio state management, Dexie indexedDB, and Big.js precision formatting.",
+  "requestFramePermissions": []
+}

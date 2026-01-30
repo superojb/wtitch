@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SwayVex Terminal</title>
+    <!-- Tailwind CSS v4 Browser Script -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    
+    <!-- FlexLayout Dark Theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css" />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-border: var(--border);
+        --color-input: var(--input);
+        --color-ring: var(--ring);
+        --color-background: var(--background);
+        --color-foreground: var(--foreground);
+        
+        --color-primary: var(--primary);
+        --color-primary-foreground: var(--primary-foreground);
+        
+        --color-secondary: var(--secondary);
+        --color-secondary-foreground: var(--secondary-foreground);
+        
+        --color-destructive: var(--destructive);
+        --color-destructive-foreground: var(--destructive-foreground);
+        
+        --color-muted: var(--muted);
+        --color-muted-foreground: var(--muted-foreground);
+        
+        --color-accent: var(--accent);
+        --color-accent-foreground: var(--accent-foreground);
+        
+        --color-popover: var(--popover);
+        --color-popover-foreground: var(--popover-foreground);
+        
+        --color-card: var(--card);
+        --color-card-foreground: var(--card-foreground);
+
+        --font-mono: "JetBrains Mono", monospace;
+        
+        --radius: var(--radius);
+      }
+
+      :root {
+        --background: hsl(210 40% 98%);
+        --foreground: hsl(222.2 84% 4.9%);
+        
+        --card: hsl(0 0% 100%);
+        --card-foreground: hsl(222.2 84% 4.9%);
+        
+        --popover: hsl(0 0% 100%);
+        --popover-foreground: hsl(222.2 84% 4.9%);
+        
+        --primary: hsl(221.2 83.2% 53.3%);
+        --primary-foreground: hsl(210 40% 98%);
+        
+        --secondary: hsl(210 40% 96.1%);
+        --secondary-foreground: hsl(222.2 47.4% 11.2%);
+        
+        --muted: hsl(210 40% 96.1%);
+        --muted-foreground: hsl(215.4 16.3% 46.9%);
+        
+        --accent: hsl(210 40% 96.1%);
+        --accent-foreground: hsl(222.2 47.4% 11.2%);
+        
+        --destructive: hsl(0 84.2% 60.2%);
+        --destructive-foreground: hsl(210 40% 98%);
+        
+        --border: hsl(214.3 31.8% 91.4%);
+        --input: hsl(214.3 31.8% 91.4%);
+        --ring: hsl(221.2 83.2% 53.3%);
+        
+        --radius: 0.3rem;
+      }
+
+      .dark {
+        --background: hsl(222.2 84% 4.9%);
+        --foreground: hsl(210 40% 98%);
+        
+        --card: hsl(222.2 84% 4.9%);
+        --card-foreground: hsl(210 40% 98%);
+        
+        --popover: hsl(222.2 84% 4.9%);
+        --popover-foreground: hsl(210 40% 98%);
+        
+        --primary: hsl(217.2 91.2% 59.8%);
+        --primary-foreground: hsl(222.2 47.4% 11.2%);
+        
+        --secondary: hsl(217.2 32.6% 17.5%);
+        --secondary-foreground: hsl(210 40% 98%);
+        
+        --muted: hsl(217.2 32.6% 17.5%);
+        --muted-foreground: hsl(215 20.2% 65.1%);
+        
+        --accent: hsl(217.2 32.6% 17.5%);
+        --accent-foreground: hsl(210 40% 98%);
+        
+        --destructive: hsl(0 62.8% 30.6%);
+        --destructive-foreground: hsl(210 40% 98%);
+        
+        --border: hsl(217.2 32.6% 17.5%);
+        --input: hsl(217.2 32.6% 17.5%);
+        --ring: hsl(224.3 76.3% 48%);
+      }
+
+      @layer base {
+        body {
+          font-family: 'Inter', sans-serif;
+          @apply bg-background text-foreground antialiased;
+        }
+      }
+    </style>
+    
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    </style>
+    
+    <script type="importmap">
+{
+  "imports": {
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0?external=react,react-dom",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "dexie": "https://esm.sh/dexie@^4.2.1",
+    "big.js": "https://esm.sh/big.js@^7.0.1",
+    "valtio": "https://esm.sh/valtio@^2.3.0?external=react,react-dom",
+    "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
+    "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-foreground antialiased overflow-hidden h-screen w-screen">
+    <div id="root" class="h-full w-full"></div>
+  </body>
+</html>
