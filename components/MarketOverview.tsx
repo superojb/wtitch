@@ -11,7 +11,7 @@ import { ChevronRight } from 'lucide-react';
 const ReactWindow = ReactWindowNamespace as any;
 const FixedSizeList = ReactWindow.FixedSizeList || ReactWindow.default?.FixedSizeList;
 
-// --- Flash Price Cell (Zero-JS Animation) ---
+// --- Flash Price Cell ---
 const PriceCell = memo(({ price }: { price: string }) => {
   const prevPrice = useRef(price);
   const dir = useRef<'up' | 'down' | null>(null);
@@ -27,7 +27,7 @@ const PriceCell = memo(({ price }: { price: string }) => {
   const animClass = dir.current === 'up' ? 'animate-flash-up' : dir.current === 'down' ? 'animate-flash-down' : '';
 
   return (
-    <div className="text-right font-mono tabular-nums text-[11px] leading-6 text-slate-100">
+    <div className="text-right font-mono tabular-nums text-[11px] leading-6 text-foreground">
       <span key={price} className={cn("px-1 rounded-sm", animClass)}>
         {parseFloat(price).toFixed(2)}
       </span>
@@ -45,11 +45,11 @@ const Row = memo(({ index, style, data }: any) => {
   if (!ticker) return <div style={style} className="flex items-center px-2 text-[10px] text-muted-foreground">...</div>;
 
   const pct = parseFloat(ticker.priceChangePercent);
-  const pctColor = pct > 0 ? 'text-emerald-500' : pct < 0 ? 'text-red-500' : 'text-slate-400';
+  // Use theme colors via classes or explicit colors if needed
+  const pctColor = pct > 0 ? 'text-emerald-500' : pct < 0 ? 'text-rose-500' : 'text-muted-foreground';
 
   const handleContextMenu = (e: React.MouseEvent) => {
       e.preventDefault();
-      // Select symbol on right click too
       selectSymbol(symbol);
       openContextMenu(e.clientX, e.clientY, symbol);
   };
@@ -58,17 +58,17 @@ const Row = memo(({ index, style, data }: any) => {
     <div 
       style={style} 
       className={cn(
-        "group flex items-center px-2 border-b border-border hover:bg-slate-900 cursor-pointer select-none transition-colors",
-        isSelected ? "bg-slate-900 border-l-2 border-l-primary" : "border-l-2 border-l-transparent"
+        "group flex items-center px-2 border-b border-border/40 hover:bg-accent cursor-pointer select-none transition-colors",
+        isSelected ? "bg-accent border-l-2 border-l-primary" : "border-l-2 border-l-transparent"
       )}
       onClick={() => selectSymbol(symbol)}
       onContextMenu={handleContextMenu}
     >
       <div className="w-[35%] flex items-center gap-2">
-        <span className={cn("font-bold text-[11px] transition-colors", isSelected ? "text-primary" : "text-slate-100 group-hover:text-white")}>
+        <span className={cn("font-bold text-[11px] transition-colors", isSelected ? "text-primary" : "text-foreground group-hover:text-primary")}>
             {symbol.replace('USDT', '')}
         </span>
-        <span className="text-[9px] text-slate-600 font-medium">USDT</span>
+        <span className="text-[9px] text-muted-foreground font-medium">USDT</span>
       </div>
       
       <div className="w-[30%]">
@@ -79,7 +79,6 @@ const Row = memo(({ index, style, data }: any) => {
         {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
       </div>
 
-      {/* Contextual Action: Only visible on hover */}
       <div className="w-[10%] flex justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-200">
          <button 
             className="h-4 w-4 flex items-center justify-center rounded hover:bg-primary/20 text-primary"
@@ -95,7 +94,6 @@ const Row = memo(({ index, style, data }: any) => {
   );
 });
 
-// --- Market Watch Container ---
 export const MarketOverview: React.FC = () => {
   const { symbols } = useSnapshot(marketStore);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,27 +111,25 @@ export const MarketOverview: React.FC = () => {
   }, []);
 
   if (symbols.length === 0) {
-    return <div className="h-full w-full flex items-center justify-center text-[10px] text-slate-500 font-mono">WAITING_FOR_FEED</div>;
+    return <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground font-mono">WAITING_FOR_FEED</div>;
   }
 
   return (
-    <div className="h-full w-full flex flex-col bg-slate-950">
-      {/* Compact Header */}
-      <div className="flex items-center px-2 h-5 bg-slate-950 border-b border-border text-[9px] font-bold text-slate-500 uppercase tracking-widest shrink-0">
+    <div className="h-full w-full flex flex-col bg-background">
+      <div className="flex items-center px-2 h-8 bg-muted/40 border-b border-border text-[9px] font-bold text-muted-foreground uppercase tracking-widest shrink-0">
         <div className="w-[35%]">Ticker</div>
         <div className="w-[30%] text-right">Price</div>
         <div className="w-[25%] text-right">24h %</div>
         <div className="w-[10%]"></div>
       </div>
       
-      {/* Virtual List */}
       <div className="flex-1 w-full" ref={containerRef}>
         {size.h > 0 && FixedSizeList && (
           <FixedSizeList
             height={size.h}
             width={size.w}
             itemCount={symbols.length}
-            itemSize={24} // Keep row height accessible
+            itemSize={28}
             itemData={symbols}
             className="scrollbar-hide"
           >

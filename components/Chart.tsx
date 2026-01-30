@@ -16,18 +16,15 @@ const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
   const { tickers, clockOffset } = useSnapshot(marketStore);
   const { getChartStyle, theme } = useVexTheme();
 
-  // 1. Initialization
+  // Init
   useLayoutEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // Initialize chart
     const chart = klinecharts.init(chartContainerRef.current) as any;
     chartInstanceRef.current = chart;
-    
-    // Apply initial style from Context
     chart?.setStyles(getChartStyle());
     
-    // Initial Dummy Data
+    // Initial Data
     const now = Date.now() + clockOffset;
     const mockData = Array.from({ length: 150 }).map((_, i) => ({
       timestamp: now - (150 - i) * 60 * 1000,
@@ -37,7 +34,6 @@ const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
       close: 50500 + Math.random() * 1000,
       volume: Math.random() * 100,
     }));
-    
     chart?.applyNewData(mockData);
 
     const resizeObserver = new ResizeObserver(() => {
@@ -51,14 +47,14 @@ const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
     };
   }, []);
 
-  // 2. Theme Synchronization (Reactive)
+  // Theme Sync
   useEffect(() => {
       if(chartInstanceRef.current) {
           chartInstanceRef.current.setStyles(getChartStyle());
       }
   }, [theme, getChartStyle]);
 
-  // 3. Data Flow
+  // Data Stream
   useEffect(() => {
       if (!chartInstanceRef.current || !symbol || !tickers[symbol]) return;
       const t = tickers[symbol];
@@ -72,33 +68,35 @@ const ChartComponent: React.FC<ChartProps> = ({ symbol, isActive }) => {
       });
   }, [tickers[symbol || ''], clockOffset]); 
 
+  // Empty State
   if (!symbol) return (
-      <div className="h-full w-full rounded-2xl bg-vx-glass border border-vx-glass-border backdrop-blur-md flex items-center justify-center">
-          <span className="text-vx-text-muted text-xs tracking-widest opacity-30 font-bold">EMPTY SLOT</span>
+      <div className="h-full w-full rounded-lg bg-vx-surface/50 border-none flex items-center justify-center">
+          <span className="text-vx-text-muted text-[10px] tracking-widest font-bold opacity-40">AVAILABLE SLOT</span>
       </div>
   );
 
   return (
     <div 
         className={cn(
-            "h-full w-full relative group transition-all duration-300 ease-spring overflow-hidden rounded-2xl",
-            "bg-vx-glass backdrop-blur-md border",
+            "h-full w-full relative transition-all duration-200 ease-aurora overflow-hidden rounded-lg",
+            "bg-vx-surface", // Solid surface to contrast with deep background
             isActive 
-                ? "border-vx-accent shadow-[0_0_30px_-10px_var(--color-vx-accent-glow)] z-10" 
-                : "border-vx-glass-border hover:border-vx-text-secondary/30"
+                ? "shadow-[0_0_0_2px_var(--color-vx-accent)] z-10" 
+                : "opacity-90 hover:opacity-100"
         )}
         onClick={() => selectSymbol(symbol)}
     >
-        {/* Header Pill */}
-        <div className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full bg-black/40 backdrop-blur border border-white/5 flex items-center gap-2">
-            <span className="text-[10px] font-bold font-mono text-vx-text-primary">{symbol}</span>
-            {isActive && <div className="w-1.5 h-1.5 rounded-full bg-vx-accent animate-pulse" />}
+        {/* Minimal Floating Badge */}
+        <div className="absolute top-2 left-3 z-10 flex items-center gap-2 pointer-events-none">
+            <span className={cn(
+                "text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-vx-bg/80 backdrop-blur text-vx-text-primary",
+                isActive ? "text-vx-accent" : ""
+            )}>
+                {symbol}
+            </span>
         </div>
         
-        <div ref={chartContainerRef} className="h-full w-full opacity-90" />
-        
-        {/* Glass reflection */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+        <div ref={chartContainerRef} className="h-full w-full" />
     </div>
   );
 };

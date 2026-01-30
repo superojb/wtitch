@@ -30,36 +30,22 @@
         "clsx": "https://esm.sh/clsx@2.1.1?external=react,react-dom",
         "dexie": "https://esm.sh/dexie@4.0.8",
         "big.js": "https://esm.sh/big.js@6.2.1",
-        "klinecharts": "https://esm.sh/klinecharts@9.8.12"
+        "klinecharts": "https://esm.sh/klinecharts@9.8.12",
+        
+        "class-variance-authority": "https://esm.sh/class-variance-authority@0.7.0",
+        "@radix-ui/react-slot": "https://esm.sh/@radix-ui/react-slot@1.0.2?external=react,react-dom"
       }
     }
     </script>
 
     <style type="text/tailwindcss">
-      @import "tailwindcss";
+      @import "./app/globals.css";
 
-      @theme {
-        --color-vx-bg: var(--color-vx-bg);
-        --color-vx-glass: var(--color-vx-glass);
-        --color-vx-glass-border: var(--color-vx-glass-border);
-        --color-vx-accent: var(--color-vx-accent);
-        --color-vx-accent-glow: var(--color-vx-accent-glow);
-        --color-vx-up: var(--color-vx-up);
-        --color-vx-down: var(--color-vx-down);
-        --color-vx-text-primary: var(--color-vx-text-primary);
-        --color-vx-text-secondary: var(--color-vx-text-secondary);
-        
-        --font-mono: "JetBrains Mono", monospace;
-        --font-sans: "Inter Variable", sans-serif;
-        
-        --ease-spring: var(--ease-spring);
-      }
-      
-      /* FlexLayout Crystal Overrides */
+      /* FlexLayout Overrides managed here for specificity */
       .flexlayout__layout { 
           background-color: transparent !important; 
-          top: 50px !important; /* Make room for Dynamic Island */
-          bottom: 60px !important; /* Make room for Dock */
+          top: 50px !important; /* Header Space */
+          bottom: 48px !important; /* Ticker Space */
       }
       
       .flexlayout__splitter {
@@ -68,13 +54,13 @@
       }
       
       .flexlayout__tabset {
-        background-color: transparent !important;
+        background-color: transparent !important; 
         border: none !important;
         box-shadow: none !important;
       }
       
       .flexlayout__tabset_header {
-        display: none !important; /* Hide native headers for pure crystal look */
+        display: none !important; 
       }
       
       .flexlayout__tab { 
@@ -82,7 +68,7 @@
       }
 
       .flexlayout__drag_rect {
-        background: var(--color-vx-accent) !important;
+        background: var(--color-primary) !important;
         border-radius: 8px;
         opacity: 0.3;
       }

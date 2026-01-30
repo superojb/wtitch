@@ -4,6 +4,7 @@ import { uiStore, setCommandPalette } from '../store/uiStore';
 import { marketStore, selectSymbol } from '../store/marketStore';
 import { Search, Hash, ArrowUpRight } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Badge } from './ui/badge';
 
 export const CommandPalette: React.FC = () => {
   const { isCommandPaletteOpen } = useSnapshot(uiStore);
@@ -12,7 +13,6 @@ export const CommandPalette: React.FC = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Filter symbols based on query
   const filteredSymbols = useMemo(() => {
     if (!query) return symbols.slice(0, 10);
     return symbols
@@ -54,7 +54,6 @@ export const CommandPalette: React.FC = () => {
 
   useEffect(() => {
     if (isCommandPaletteOpen) {
-        // Short delay to ensure mount
         setTimeout(() => inputRef.current?.focus(), 10);
         setQuery('');
         setSelectedIndex(0);
@@ -70,19 +69,17 @@ export const CommandPalette: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[10001] flex items-start justify-center pt-[15vh]">
-      {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-background/50 backdrop-blur-sm transition-opacity"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm transition-opacity"
         onClick={() => setCommandPalette(false)}
       />
 
-      {/* Modal */}
-      <div className="relative w-full max-w-lg overflow-hidden rounded-lg border border-slate-800 bg-slate-950 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
-        <div className="flex items-center border-b border-slate-800 px-3">
-          <Search className="mr-2 h-4 w-4 shrink-0 text-slate-500" />
+      <div className="relative w-full max-w-lg overflow-hidden rounded-lg border border-border bg-popover shadow-2xl animate-in fade-in zoom-in-95 duration-100">
+        <div className="flex items-center border-b border-border px-3">
+          <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
           <input
             ref={inputRef}
-            className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-slate-500 text-slate-100"
+            className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground text-foreground"
             placeholder="Search symbols..."
             value={query}
             onChange={(e) => {
@@ -90,41 +87,41 @@ export const CommandPalette: React.FC = () => {
                 setSelectedIndex(0);
             }}
           />
-          <div className="text-[10px] text-slate-600 border border-slate-800 rounded px-1.5 py-0.5">ESC</div>
+          <Badge variant="outline" className="text-[10px] text-muted-foreground bg-muted border-border">ESC</Badge>
         </div>
 
         <div className="max-h-[300px] overflow-y-auto p-1">
           {filteredSymbols.length === 0 ? (
-            <div className="py-6 text-center text-xs text-slate-500">No symbol found.</div>
+            <div className="py-6 text-center text-xs text-muted-foreground">No symbol found.</div>
           ) : (
             filteredSymbols.map((symbol, index) => (
               <div
                 key={symbol}
                 className={cn(
-                  "flex items-center justify-between px-2 py-2 rounded-md cursor-pointer text-xs group",
-                  index === selectedIndex ? "bg-primary/10 text-primary" : "text-slate-300 hover:bg-slate-900"
+                  "flex items-center justify-between px-2 py-2 rounded-sm cursor-pointer text-xs group transition-colors",
+                  index === selectedIndex ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted"
                 )}
                 onClick={() => handleSelect(symbol)}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
                 <div className="flex items-center gap-2">
-                    <Hash className={cn("h-3 w-3", index === selectedIndex ? "text-primary" : "text-slate-600")} />
+                    <Hash className={cn("h-3 w-3", index === selectedIndex ? "text-primary" : "text-muted-foreground")} />
                     <span className="font-bold">{symbol}</span>
                 </div>
                 {index === selectedIndex && (
-                    <ArrowUpRight className="h-3 w-3 text-primary/50" />
+                    <ArrowUpRight className="h-3 w-3 opacity-50" />
                 )}
               </div>
             ))
           )}
         </div>
         
-        <div className="border-t border-slate-800 bg-slate-950 px-3 py-1.5 flex justify-between">
-            <span className="text-[10px] text-slate-500">
-                <span className="font-bold text-slate-300">{filteredSymbols.length}</span> results
+        <div className="border-t border-border bg-muted/20 px-3 py-1.5 flex justify-between">
+            <span className="text-[10px] text-muted-foreground">
+                <span className="font-bold text-foreground">{filteredSymbols.length}</span> results
             </span>
-            <span className="text-[10px] text-slate-600">
-                Use <span className="text-slate-400">↑↓</span> to navigate
+            <span className="text-[10px] text-muted-foreground">
+                Use <span className="text-foreground">↑↓</span> to navigate
             </span>
         </div>
       </div>

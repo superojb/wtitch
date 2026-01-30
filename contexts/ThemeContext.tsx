@@ -4,40 +4,39 @@ import { useSnapshot } from 'valtio';
 
 export type VexTheme = 'dark' | 'light';
 
-// Crystal Style Configurations
-// Key feature: Grids are almost invisible (opacity 0.05) to emphasize data
-const CRYSTAL_DARK = {
+// Mapped from Tailwind OKLCH variables to sRGB for Canvas
+const AURORA_DARK = {
     grid: {
-        horizontal: { color: 'rgba(255, 255, 255, 0.05)', style: 'dashed', dashedValue: [4, 4] },
-        vertical: { color: 'rgba(255, 255, 255, 0.05)', style: 'dashed', dashedValue: [4, 4] }
+        horizontal: { color: 'rgba(255, 255, 255, 0.04)', style: 'solid' },
+        vertical: { color: 'rgba(255, 255, 255, 0.04)', style: 'solid' }
     },
     candle: {
-        bar: { upColor: '#6ee7b7', downColor: '#f43f5e', noChangeColor: '#94a3b8' }, // Mint & Rose
-        priceMark: { high: { color: '#94a3b8' }, low: { color: '#94a3b8' }, last: { upColor: '#6ee7b7', downColor: '#f43f5e' } }
+        bar: { upColor: '#4ade80', downColor: '#f43f5e', noChangeColor: '#94a3b8' }, 
+        priceMark: { high: { color: '#94a3b8' }, low: { color: '#94a3b8' }, last: { upColor: '#4ade80', downColor: '#f43f5e' } }
     },
     xAxis: { tickText: { color: 'rgba(255,255,255,0.4)', family: 'JetBrains Mono', size: 10 } },
     yAxis: { tickText: { color: 'rgba(255,255,255,0.4)', family: 'JetBrains Mono', size: 10 } },
     crosshair: {
-        horizontal: { text: { backgroundColor: '#1e293b', color: '#f1f5f9' }, line: { color: 'rgba(255,255,255,0.2)' } },
-        vertical: { text: { backgroundColor: '#1e293b', color: '#f1f5f9' }, line: { color: 'rgba(255,255,255,0.2)' } }
+        horizontal: { text: { backgroundColor: '#1e293b', color: '#f1f5f9' }, line: { color: 'rgba(255,255,255,0.3)', style: 'dashed' } },
+        vertical: { text: { backgroundColor: '#1e293b', color: '#f1f5f9' }, line: { color: 'rgba(255,255,255,0.3)', style: 'dashed' } }
     },
     backgroundColor: 'transparent'
 };
 
-const CRYSTAL_LIGHT = {
+const AURORA_LIGHT = {
     grid: {
-        horizontal: { color: 'rgba(0, 0, 0, 0.05)', style: 'dashed', dashedValue: [4, 4] },
-        vertical: { color: 'rgba(0, 0, 0, 0.05)', style: 'dashed', dashedValue: [4, 4] }
+        horizontal: { color: 'rgba(0, 0, 0, 0.04)', style: 'solid' },
+        vertical: { color: 'rgba(0, 0, 0, 0.04)', style: 'solid' }
     },
     candle: {
-        bar: { upColor: '#059669', downColor: '#e11d48', noChangeColor: '#64748b' },
-        priceMark: { high: { color: '#64748b' }, low: { color: '#64748b' }, last: { upColor: '#059669', downColor: '#e11d48' } }
+        bar: { upColor: '#16a34a', downColor: '#e11d48', noChangeColor: '#64748b' },
+        priceMark: { high: { color: '#64748b' }, low: { color: '#64748b' }, last: { upColor: '#16a34a', downColor: '#e11d48' } }
     },
-    xAxis: { tickText: { color: 'rgba(0,0,0,0.4)', family: 'JetBrains Mono', size: 10 } },
-    yAxis: { tickText: { color: 'rgba(0,0,0,0.4)', family: 'JetBrains Mono', size: 10 } },
+    xAxis: { tickText: { color: 'rgba(0,0,0,0.5)', family: 'JetBrains Mono', size: 10 } },
+    yAxis: { tickText: { color: 'rgba(0,0,0,0.5)', family: 'JetBrains Mono', size: 10 } },
     crosshair: {
-        horizontal: { text: { backgroundColor: '#e2e8f0', color: '#0f172a' }, line: { color: 'rgba(0,0,0,0.2)' } },
-        vertical: { text: { backgroundColor: '#e2e8f0', color: '#0f172a' }, line: { color: 'rgba(0,0,0,0.2)' } }
+        horizontal: { text: { backgroundColor: '#e2e8f0', color: '#0f172a' }, line: { color: 'rgba(0,0,0,0.3)', style: 'dashed' } },
+        vertical: { text: { backgroundColor: '#e2e8f0', color: '#0f172a' }, line: { color: 'rgba(0,0,0,0.3)', style: 'dashed' } }
     },
     backgroundColor: 'transparent'
 };
@@ -47,15 +46,13 @@ interface ThemeContextType {
     getChartStyle: () => any;
 }
 
-const ThemeContext = createContext<ThemeContextType>({ theme: 'dark', getChartStyle: () => CRYSTAL_DARK });
+const ThemeContext = createContext<ThemeContextType>({ theme: 'dark', getChartStyle: () => AURORA_DARK });
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { theme } = useSnapshot(uiStore);
 
-    // Sync with DOM
     useEffect(() => {
         const html = document.documentElement;
-        // Animation class is handled in CSS (body transition)
         if (theme === 'dark') {
             html.classList.add('dark');
             html.classList.remove('light');
@@ -66,7 +63,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [theme]);
 
     const getChartStyle = useCallback(() => {
-        return theme === 'dark' ? CRYSTAL_DARK : CRYSTAL_LIGHT;
+        return theme === 'dark' ? AURORA_DARK : AURORA_LIGHT;
     }, [theme]);
 
     return (

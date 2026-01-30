@@ -19,7 +19,9 @@
     "clsx": "2.1.1",
     "dexie": "4.0.8",
     "big.js": "6.2.1",
-    "klinecharts": "9.8.12"
+    "klinecharts": "9.8.12",
+    "class-variance-authority": "0.7.0",
+    "@radix-ui/react-slot": "1.0.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

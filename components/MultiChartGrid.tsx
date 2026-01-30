@@ -9,7 +9,6 @@ export const MultiChartGrid: React.FC = () => {
     const { chartLayout } = useSnapshot(uiStore);
     const { selectedSymbol, symbols } = useSnapshot(marketStore);
 
-    // Determine grid columns and rows based on layout mode
     let gridClass = "grid-cols-1 grid-rows-1";
     let count = 1;
 
@@ -21,22 +20,18 @@ export const MultiChartGrid: React.FC = () => {
         count = 8;
     }
 
-    // Logic to populate grid
     const slots = [];
-    // Primary slot (Top Left) is always the selected symbol
     if (selectedSymbol) slots.push(selectedSymbol);
     
-    // Fill rest with available symbols that aren't the selected one
     for (const s of symbols) {
         if (slots.length >= count) break;
         if (s !== selectedSymbol) slots.push(s);
     }
     
-    // Empty slots padding
     while (slots.length < count) slots.push(null);
 
     return (
-        <div className={cn("h-full w-full grid gap-3 p-3 animate-float-up", gridClass)}>
+        <div className={cn("h-full w-full grid gap-1 p-1 transition-all duration-300 ease-aurora", gridClass)}>
             {slots.map((sym, idx) => (
                 <div key={idx} className="relative w-full h-full">
                     <Chart 

@@ -32,7 +32,6 @@ export const GlobalContextMenu: React.FC = () => {
 
     if (!contextMenu.isOpen || !contextMenu.symbol) return null;
 
-    // Boundary check logic could go here to prevent menu clipping
     const style = {
         top: contextMenu.y,
         left: contextMenu.x,
@@ -42,9 +41,9 @@ export const GlobalContextMenu: React.FC = () => {
         <div 
             ref={menuRef}
             style={style}
-            className="fixed z-[9999] min-w-[160px] rounded-md border border-slate-800 bg-slate-950 p-1 shadow-xl animate-in fade-in zoom-in-95 duration-75"
+            className="fixed z-[9999] min-w-[160px] rounded-md border border-border bg-popover text-popover-foreground p-1 shadow-xl animate-in fade-in zoom-in-95 duration-75"
         >
-            <div className="px-2 py-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800 mb-1">
+            <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider border-b border-border mb-1">
                 {contextMenu.symbol}
             </div>
 
@@ -68,12 +67,12 @@ export const GlobalContextMenu: React.FC = () => {
                 onClick={closeContextMenu} 
             />
             
-            <div className="h-[1px] bg-slate-800 my-1" />
+            <div className="h-[1px] bg-border my-1" />
             
             <MenuItem 
-                icon={<XCircle className="h-3 w-3 text-red-500" />} 
+                icon={<XCircle className="h-3 w-3 text-destructive" />} 
                 label="Close" 
-                className="text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 onClick={closeContextMenu} 
             />
         </div>
@@ -91,7 +90,7 @@ interface MenuItemProps {
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, shortcut, onClick, className }) => (
     <button 
         className={cn(
-            "flex w-full items-center rounded-sm px-2 py-1.5 text-xs outline-none transition-colors hover:bg-slate-800 hover:text-slate-100 text-slate-400 cursor-pointer",
+            "flex w-full items-center rounded-sm px-2 py-1.5 text-xs outline-none transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground cursor-pointer",
             className
         )}
         onClick={(e) => {
@@ -101,6 +100,6 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, shortcut, onClick, cla
     >
         <span className="mr-2">{icon}</span>
         <span className="flex-1 text-left">{label}</span>
-        {shortcut && <span className="ml-auto text-[10px] tracking-widest text-slate-600">{shortcut}</span>}
+        {shortcut && <span className="ml-auto text-[10px] tracking-widest opacity-60">{shortcut}</span>}
     </button>
 );
