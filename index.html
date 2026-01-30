@@ -1,211 +1,153 @@
 <!DOCTYPE html>
-<html lang="en" class="dark" style="height: 100%; overflow: hidden;">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SwayVex Terminal</title>
     
-    <!-- Tailwind CSS v4 -->
+    <!-- Tailwind CSS v4 Browser Script -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
-    <!-- FlexLayout CSS (Dark default) -->
+    <!-- FlexLayout CSS -->
     <link id="flexlayout-stylesheet" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flexlayout-react@0.7.15/style/dark.css" />
 
-    <style type="text/tailwindcss">
-      @import "tailwindcss";
-      
-      @theme {
-        --color-border: var(--border);
-        --color-input: var(--input);
-        --color-ring: var(--ring);
-        --color-background: var(--background);
-        --color-foreground: var(--foreground);
-        
-        --color-primary: var(--primary);
-        --color-primary-foreground: var(--primary-foreground);
-        
-        --color-secondary: var(--secondary);
-        --color-secondary-foreground: var(--secondary-foreground);
-        
-        --color-destructive: var(--destructive);
-        --color-destructive-foreground: var(--destructive-foreground);
-        
-        --color-muted: var(--muted);
-        --color-muted-foreground: var(--muted-foreground);
-        
-        --color-accent: var(--accent);
-        --color-accent-foreground: var(--accent-foreground);
-        
-        --color-popover: var(--popover);
-        --color-popover-foreground: var(--popover-foreground);
-        
-        --color-card: var(--card);
-        --color-card-foreground: var(--card-foreground);
-        
-        --radius: var(--radius);
-        
-        --animate-flash-up: flash-green 0.5s ease-out forwards;
-        --animate-flash-down: flash-red 0.5s ease-out forwards;
-        
-        @keyframes flash-green {
-          0% { background-color: rgba(16, 185, 129, 0.3); color: #10b981; }
-          100% { background-color: transparent; color: inherit; }
-        }
-        
-        @keyframes flash-red {
-          0% { background-color: rgba(239, 68, 68, 0.3); color: #ef4444; }
-          100% { background-color: transparent; color: inherit; }
-        }
-      }
-
-      :root {
-        --background: hsl(210 40% 98%);
-        --foreground: hsl(222.2 84% 4.9%);
-        
-        --card: hsl(0 0% 100%);
-        --card-foreground: hsl(222.2 84% 4.9%);
-        
-        --popover: hsl(0 0% 100%);
-        --popover-foreground: hsl(222.2 84% 4.9%);
-        
-        --primary: hsl(221.2 83.2% 53.3%);
-        --primary-foreground: hsl(210 40% 98%);
-        
-        --secondary: hsl(210 40% 96.1%);
-        --secondary-foreground: hsl(222.2 47.4% 11.2%);
-        
-        --muted: hsl(210 40% 96.1%);
-        --muted-foreground: hsl(215.4 16.3% 46.9%);
-        
-        --accent: hsl(210 40% 96.1%);
-        --accent-foreground: hsl(222.2 47.4% 11.2%);
-        
-        --destructive: hsl(0 84.2% 60.2%);
-        --destructive-foreground: hsl(210 40% 98%);
-        
-        --border: hsl(214.3 31.8% 91.4%);
-        --input: hsl(214.3 31.8% 91.4%);
-        --ring: hsl(221.2 83.2% 53.3%);
-        
-        --radius: 0.125rem;
-      }
-
-      .dark {
-        --background: hsl(222.2 20% 5%);
-        --foreground: hsl(210 40% 98%);
-        
-        --card: hsl(222.2 25% 8%);
-        --card-foreground: hsl(210 40% 98%);
-        
-        --popover: hsl(222.2 84% 4.9%);
-        --popover-foreground: hsl(210 40% 98%);
-        
-        --primary: hsl(217.2 91.2% 59.8%);
-        --primary-foreground: hsl(222.2 47.4% 11.2%);
-        
-        --secondary: hsl(217.2 32.6% 17.5%);
-        --secondary-foreground: hsl(210 40% 98%);
-        
-        --muted: hsl(217.2 32.6% 17.5%);
-        --muted-foreground: hsl(215 20.2% 65.1%);
-        
-        --accent: hsl(217.2 32.6% 17.5%);
-        --accent-foreground: hsl(210 40% 98%);
-        
-        --destructive: hsl(0 62.8% 30.6%);
-        --destructive-foreground: hsl(210 40% 98%);
-        
-        --border: hsl(217.2 32.6% 17.5%);
-        --input: hsl(217.2 32.6% 17.5%);
-        --ring: hsl(224.3 76.3% 48%);
-      }
-
-      @layer base {
-        body {
-          font-family: 'Inter', sans-serif;
-          @apply bg-background text-foreground antialiased;
-        }
-      }
-
-      /* FlexLayout Density Overrides */
-      .flexlayout__layout {
-        @apply bg-background !important;
-      }
-      .flexlayout__tabset {
-        @apply bg-card border-l border-border/20 !important;
-      }
-      .flexlayout__tabset_header {
-        @apply bg-muted/10 border-b border-border/40 h-[22px] !important;
-        padding: 0 !important;
-      }
-      .flexlayout__tabset_tabbar_outer {
-         @apply bg-transparent !important;
-      }
-      .flexlayout__tab_button {
-        @apply bg-transparent text-muted-foreground text-[10px] font-medium tracking-tight px-3 py-0 border-r border-border/20 rounded-none hover:bg-muted/10 transition-colors !important;
-        margin: 0 !important;
-        top: 0 !important;
-        height: 22px !important;
-        line-height: 22px !important;
-      }
-      .flexlayout__tab_button--selected {
-        @apply bg-card text-foreground border-t-2 border-t-primary !important;
-      }
-      .flexlayout__splitter {
-        @apply bg-background hover:bg-primary/50 transition-colors !important;
-      }
-      .flexlayout__splitter:hover {
-        @apply bg-primary !important;
-      }
-      .flexlayout__tab {
-        @apply bg-card !important;
-      }
-    </style>
-    
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-    </style>
-    
+    <!-- Strict Version Locking via ImportMap -->
     <script type="importmap">
     {
       "imports": {
-        "react-dom": "https://esm.sh/react-dom@19.0.0",
-        "react-dom/": "https://esm.sh/react-dom@19.0.0/",
         "react": "https://esm.sh/react@19.0.0",
         "react/": "https://esm.sh/react@19.0.0/",
+        "react-dom": "https://esm.sh/react-dom@19.0.0",
+        "react-dom/": "https://esm.sh/react-dom@19.0.0/",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        
+        "valtio": "https://esm.sh/valtio@2.0.0?external=react,react-dom",
+        "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom",
+        "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
+        
         "lucide-react": "https://esm.sh/lucide-react@0.460.0?external=react,react-dom",
         "tailwind-merge": "https://esm.sh/tailwind-merge@2.5.4?external=react,react-dom",
         "clsx": "https://esm.sh/clsx@2.1.1?external=react,react-dom",
         "dexie": "https://esm.sh/dexie@4.0.8",
         "big.js": "https://esm.sh/big.js@6.2.1",
-        "valtio": "https://esm.sh/valtio@2.0.0?external=react,react-dom",
-        "react-window": "https://esm.sh/react-window@1.8.10?external=react,react-dom",
-        "flexlayout-react": "https://esm.sh/flexlayout-react@0.7.15?external=react,react-dom",
         "klinecharts": "https://esm.sh/klinecharts@9.8.12"
       }
     }
     </script>
-  </head>
-  <body class="bg-background text-foreground antialiased overflow-hidden h-screen w-screen relative">
-    <div id="root" class="h-full w-full" style="height:100vh; width:100vw; overflow:hidden;"></div>
-    <script>
-      // Global Error Trap for Blank Page Diagnosis
-      window.addEventListener('error', function(event) {
-        console.error('Global Error:', event.error);
-        if (document.body && document.body.children.length === 1) {
-            // If body is empty except root (which is empty), show error
-            const errDiv = document.createElement('div');
-            errDiv.style.position = 'absolute';
-            errDiv.style.top = '0';
-            errDiv.style.left = '0';
-            errDiv.style.background = '#330000';
-            errDiv.style.color = '#ff9999';
-            errDiv.style.padding = '20px';
-            errDiv.style.zIndex = '9999';
-            errDiv.innerText = 'Application Crash: ' + (event.error ? event.error.message : 'Unknown Error');
-            document.body.appendChild(errDiv);
+
+    <!-- Tailwind Config & Industrial Theme -->
+    <style type="text/tailwindcss">
+      @import "tailwindcss";
+
+      @theme {
+        --color-background: #020617; /* Slate 950 */
+        --color-foreground: #f8fafc; /* Slate 50 */
+        
+        --color-card: #0f172a; /* Slate 900 */
+        --color-card-foreground: #f8fafc;
+        
+        --color-border: #1e293b; /* Slate 800 */
+        --color-input: #1e293b;
+        
+        --color-primary: #06b6d4; /* Cyan 500 */
+        --color-primary-foreground: #ffffff;
+        
+        --color-muted: #1e293b;
+        --color-muted-foreground: #94a3b8; /* Slate 400 */
+        
+        --color-accent: #334155; /* Slate 700 */
+        --color-accent-foreground: #f8fafc;
+        
+        --color-destructive: #ef4444;
+        
+        --font-mono: "JetBrains Mono", monospace;
+        --font-sans: "Inter", sans-serif;
+
+        --animate-flash-up: flash-green 600ms ease-out;
+        --animate-flash-down: flash-red 600ms ease-out;
+        
+        @keyframes flash-green {
+          0% { background-color: rgba(16, 185, 129, 0.25); color: #34d399; }
+          100% { background-color: transparent; color: inherit; }
         }
-      });
-    </script>
+        
+        @keyframes flash-red {
+          0% { background-color: rgba(239, 68, 68, 0.25); color: #f87171; }
+          100% { background-color: transparent; color: inherit; }
+        }
+      }
+
+      /* Global Reset */
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        font-family: var(--font-sans);
+        overflow: hidden;
+      }
+
+      /* FlexLayout Industrial Overrides */
+      .flexlayout__layout {
+        background-color: var(--color-background) !important;
+      }
+      .flexlayout__splitter {
+        background-color: #020617 !important;
+        border: 1px solid var(--color-border) !important;
+      }
+      .flexlayout__splitter:hover {
+        background-color: var(--color-primary) !important;
+      }
+      /* Flat Tabs */
+      .flexlayout__tabset {
+        background-color: var(--color-card) !important;
+        border: 1px solid var(--color-border) !important;
+        border-radius: 0 !important;
+      }
+      .flexlayout__tabset_header {
+        background-color: #020617 !important;
+        border-bottom: 1px solid var(--color-border) !important;
+        padding: 0 !important;
+        height: 28px !important;
+      }
+      .flexlayout__tab_button {
+        background-color: transparent !important;
+        border: none !important;
+        border-right: 1px solid var(--color-border) !important;
+        color: var(--color-muted-foreground) !important;
+        border-radius: 0 !important;
+        font-family: var(--font-sans);
+        font-size: 11px !important;
+        font-weight: 500;
+        padding: 0 12px !important;
+        margin: 0 !important;
+        top: 0 !important;
+        height: 27px !important;
+        line-height: 27px !important;
+      }
+      .flexlayout__tab_button:hover {
+        background-color: rgba(255,255,255,0.03) !important;
+        color: var(--color-foreground) !important;
+      }
+      .flexlayout__tab_button--selected {
+        background-color: var(--color-card) !important;
+        color: var(--color-primary) !important;
+        border-bottom: 2px solid var(--color-primary) !important;
+      }
+      .flexlayout__tab {
+        background-color: var(--color-card) !important;
+        border-radius: 0 !important;
+      }
+    </style>
+    
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+    </style>
+  </head>
+  <body>
+    <!-- Strict Viewport Anchor -->
+    <div id="root" style="height: 100vh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; background: #020617;">
+      <div style="margin: auto; color: #475569; font-family: monospace; font-size: 11px;">INITIALIZING SWAYVEX KERNEL...</div>
+    </div>
   </body>
 </html>

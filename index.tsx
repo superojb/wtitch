@@ -1,28 +1,34 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+// Entry Point - Strict Window Load
+(async () => {
+    const start = async () => {
+        const rootElement = document.getElementById('root');
+        if (!rootElement) return;
 
-const startApp = () => {
-    const rootElement = document.getElementById('root');
-    if (!rootElement) {
-      console.error("FATAL: Root element not found.");
-      return;
+        // Reset Root Content
+        rootElement.innerHTML = '';
+
+        try {
+            // Dynamic Imports to respect importmap resolution
+            const React = await import('react');
+            const ReactDOM = await import('react-dom/client');
+            const { default: App } = await import('./App');
+
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(
+                <React.StrictMode>
+                    <App />
+                </React.StrictMode>
+            );
+        } catch (e) {
+            console.error("Boot Error:", e);
+            rootElement.innerHTML = `<div style="color:#ef4444; padding:20px;">Kernel Panic: ${e.message}</div>`;
+        }
+    };
+
+    // Strict Wait for Window Load (CSS parsing complete)
+    if (document.readyState === 'complete') {
+        start();
+    } else {
+        window.addEventListener('load', start);
     }
-    
-    // Clear existing content if any (handling hot reload/re-mounts)
-    rootElement.innerHTML = '';
-
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
-};
-
-// Strict Wait for Window Load to ensure all styles and scripts are ready
-if (document.readyState === 'complete') {
-    startApp();
-} else {
-    window.addEventListener('load', startApp);
-}
+})();

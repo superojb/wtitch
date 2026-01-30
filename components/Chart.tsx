@@ -3,12 +3,17 @@ import * as klinecharts from 'klinecharts';
 import { useSnapshot } from 'valtio';
 import { marketStore } from '../store/marketStore';
 
-// Access types if needed, though mostly inferred or available globally in this context
-type KlineChartType = klinecharts.Chart;
+// Define explicit interface to satisfy TypeScript if library types are incomplete or mismatched
+interface KlineChartInstance {
+    applyNewData: (data: any[]) => void;
+    updateData: (data: any) => void;
+    resize: () => void;
+    [key: string]: any;
+}
 
 export const Chart: React.FC = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartInstanceRef = useRef<KlineChartType | null>(null);
+  const chartInstanceRef = useRef<KlineChartInstance | null>(null);
   const { selectedSymbol, tickers, clockOffset } = useSnapshot(marketStore);
 
   useLayoutEffect(() => {
@@ -21,6 +26,7 @@ export const Chart: React.FC = () => {
     }
 
     // Initialize chart using namespace access
+    // Cast to unknown first then to custom interface to avoid 'conversion of type' errors
     const chart = klinecharts.init(chartContainerRef.current, {
         styles: {
             grid: {
@@ -35,7 +41,8 @@ export const Chart: React.FC = () => {
                 }
             }
         }
-    });
+    }) as unknown as KlineChartInstance;
+    
     chartInstanceRef.current = chart;
     
     const now = Date.now() + marketStore.clockOffset;
@@ -47,6 +54,8 @@ export const Chart: React.FC = () => {
       close: 50500 + Math.random() * 1000,
       volume: Math.random() * 100,
     }));
+    
+    // Call method on the typed instance
     chart?.applyNewData(mockData);
 
     const resizeObserver = new ResizeObserver(() => {

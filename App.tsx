@@ -114,11 +114,14 @@ const App: React.FC = () => {
   }, []);
 
   if (!initDb) {
-      return <div className="flex h-screen w-screen items-center justify-center bg-background text-foreground animate-pulse font-mono text-xs">Initializing Core DB...</div>;
+      // Return null here to keep the "System Loading..." message from index.tsx visible 
+      // until we are ready to take over the DOM.
+      // Alternatively, we render a react-based loader that replaces the HTML one.
+      return <div className="flex h-full w-full items-center justify-center bg-background text-foreground animate-pulse font-mono text-xs">Initializing Core DB...</div>;
   }
 
   return (
-    <div className="flex flex-col h-full w-full bg-background text-foreground">
+    <div className="flex flex-col h-full w-full bg-background text-foreground overflow-hidden">
       <ThemeManager />
       <Header />
       <main className="flex-1 overflow-hidden relative">

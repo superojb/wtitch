@@ -1,44 +1,35 @@
-import React, { memo, useRef, useLayoutEffect, useState } from 'react';
+import React, { memo, useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { useSnapshot } from 'valtio';
 import * as ReactWindowNamespace from 'react-window';
-import Big from 'big.js'; 
 import { marketStore, selectSymbol } from '../store/marketStore';
-import { BigFormatter } from '../services/bigFormatter';
 import { cn } from '../lib/utils';
 import { TickerData } from '../types';
 
-// Robust ESM/CJS interop for react-window
+// Robust ESM Interop
 const ReactWindow = ReactWindowNamespace as any;
-// Ensure we get the actual component class/function, not the module object
-const List = ReactWindow.FixedSizeList || ReactWindow.default?.FixedSizeList;
-const safeAreEqual = ReactWindow.areEqual || ReactWindow.default?.areEqual || ((prev: any, next: any) => prev === next);
+const FixedSizeList = ReactWindow.FixedSizeList || ReactWindow.default?.FixedSizeList;
 
-// --- Price Cell Component with Low-CPU Flash ---
-const PriceCell = memo(({ value, tickSize }: { value: string, tickSize: string }) => {
-  const prevValue = useRef(value);
-  const directionRef = useRef<'up' | 'down' | null>(null);
+// --- Flash Price Cell (Zero-JS Animation) ---
+// We use the `key` prop on the span. When the price string changes, React unmounts the old span
+// and mounts a new one. The new span has the CSS animation class applied immediately.
+const PriceCell = memo(({ price }: { price: string }) => {
+  const prevPrice = useRef(price);
+  const dir = useRef<'up' | 'down' | null>(null);
 
-  // Synchronous calculation before render to determine direction
-  if (value !== prevValue.current) {
-      try {
-          const current = new Big(value);
-          const prev = new Big(prevValue.current);
-          if (current.gt(prev)) directionRef.current = 'up';
-          else if (current.lt(prev)) directionRef.current = 'down';
-      } catch(e) {}
-      prevValue.current = value;
+  if (price !== prevPrice.current) {
+    const curr = parseFloat(price);
+    const prev = parseFloat(prevPrice.current);
+    if (curr > prev) dir.current = 'up';
+    else if (curr < prev) dir.current = 'down';
+    prevPrice.current = price;
   }
 
-  const animClass = directionRef.current === 'up' 
-    ? 'animate-flash-up' 
-    : directionRef.current === 'down' 
-      ? 'animate-flash-down' 
-      : '';
+  const animClass = dir.current === 'up' ? 'animate-flash-up' : dir.current === 'down' ? 'animate-flash-down' : '';
 
   return (
-    <div className="text-right font-mono px-1 rounded-sm">
-      <span key={value} className={cn("inline-block", animClass)}>
-        {BigFormatter.formatPrice(value, tickSize)}
+    <div className="text-right font-mono text-[11px] leading-6">
+      <span key={price} className={cn("px-1 rounded-sm", animClass)}>
+        {parseFloat(price).toFixed(2)}
       </span>
     </div>
   );
@@ -49,123 +40,76 @@ const Row = memo(({ index, style, data }: any) => {
   const symbol = data[index];
   const snap = useSnapshot(marketStore);
   const ticker = snap.tickers[symbol] as TickerData | undefined;
-  const meta = snap.symbolMetadata[symbol];
-  const tickSize = meta?.tickSize || "0.01"; 
-  
   const isSelected = snap.selectedSymbol === symbol;
 
-  const handleSelect = () => {
-    selectSymbol(symbol);
-  };
+  if (!ticker) return <div style={style} className="flex items-center px-2 text-[10px] text-muted-foreground">Loading...</div>;
 
-  if (!ticker) {
-    return (
-      <div style={style} className="flex items-center px-2 text-[10px] text-muted-foreground border-b border-border/40">
-        <span className="w-16 font-bold">{symbol}</span>
-        <span className="flex-1 text-center">Loading...</span>
-      </div>
-    );
-  }
-
-  let changeColor = 'text-foreground';
-  try {
-      const change = new Big(ticker.priceChangePercent);
-      if (change.gt(0)) changeColor = 'text-emerald-500';
-      else if (change.lt(0)) changeColor = 'text-red-500';
-  } catch(e) { /* ignore */ }
+  const pct = parseFloat(ticker.priceChangePercent);
+  const pctColor = pct > 0 ? 'text-emerald-500' : pct < 0 ? 'text-red-500' : 'text-muted-foreground';
 
   return (
     <div 
       style={style} 
-      onClick={handleSelect}
       className={cn(
-        "flex items-center text-[10px] border-b border-border/20 hover:bg-accent/50 cursor-pointer transition-colors px-1",
-        isSelected && "bg-accent hover:bg-accent"
+        "flex items-center px-2 border-b border-border hover:bg-accent/50 cursor-pointer select-none transition-colors",
+        isSelected ? "bg-accent text-accent-foreground" : "text-muted-foreground"
       )}
+      onClick={() => selectSymbol(symbol)}
     >
-      <div className="w-[28%] font-bold text-foreground truncate pl-1" title={symbol}>{symbol}</div>
-      <div className="w-[22%]">
-         <PriceCell value={ticker.lastPrice} tickSize={tickSize} />
+      <div className="w-[40%] font-bold text-[11px] text-foreground">{symbol}</div>
+      <div className="w-[35%]">
+        <PriceCell price={ticker.lastPrice} />
       </div>
-      <div className={cn("w-[18%] text-right font-mono", changeColor)}>
-        {ticker.priceChangePercent}%
-      </div>
-      <div className="w-[18%] text-right font-mono text-muted-foreground">
-        {BigFormatter.formatVolume(ticker.volume)}
-      </div>
-      <div className="w-[14%] text-right font-mono text-amber-500/80 pr-1">
-        {ticker.fundingRate}%
+      <div className={cn("w-[25%] text-right font-mono text-[11px]", pctColor)}>
+        {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
       </div>
     </div>
   );
-}, safeAreEqual);
+});
 
-// --- Header Component ---
-const MarketHeader = () => (
-  <div className="flex items-center px-1 h-5 text-[9px] font-semibold text-muted-foreground bg-muted/20 border-b border-border shrink-0 select-none uppercase tracking-wider">
-    <div className="w-[28%] pl-1">Asset</div>
-    <div className="w-[22%] text-right">Last</div>
-    <div className="w-[18%] text-right">24h%</div>
-    <div className="w-[18%] text-right">Vol</div>
-    <div className="w-[14%] text-right pr-1">Rate</div>
-  </div>
-);
-
-// --- Hook for container sizing ---
-const useContainerSize = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+// --- Market Watch Container ---
+export const MarketOverview: React.FC = () => {
+  const { symbols } = useSnapshot(marketStore);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
 
   useLayoutEffect(() => {
-    if (!ref.current) return;
-    const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            setSize({
-                width: entry.contentRect.width,
-                height: entry.contentRect.height
-            });
-        }
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setSize({ w: entry.contentRect.width, h: entry.contentRect.height });
+      }
     });
-    observer.observe(ref.current);
+    observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
-  return { ref, size };
-};
-
-// --- Main Container ---
-export const MarketOverview: React.FC = () => {
-  const snap = useSnapshot(marketStore);
-  const symbols = snap.symbols;
-  const { ref, size } = useContainerSize();
-
   if (symbols.length === 0) {
-    return (
-      <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">
-        Loading Assets...
-      </div>
-    );
-  }
-
-  if (!List) {
-      return <div className="p-2 text-[10px] text-red-500">Failed to load virtual list. Library resolution error.</div>
+    return <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground">CONNECTING FEED...</div>;
   }
 
   return (
     <div className="h-full w-full flex flex-col bg-card">
-      <MarketHeader />
-      <div className="flex-1 w-full overflow-hidden relative" ref={ref}>
-        {size.height > 0 && size.width > 0 && (
-            <List
-              height={size.height}
-              itemCount={symbols.length}
-              itemSize={22} 
-              width={size.width}
-              itemData={symbols} 
-              className="scrollbar-hide"
-            >
-              {Row}
-            </List>
+      {/* Static Header */}
+      <div className="flex items-center px-2 h-6 bg-muted border-b border-border text-[10px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0">
+        <div className="w-[40%]">Symbol</div>
+        <div className="w-[35%] text-right">Price</div>
+        <div className="w-[25%] text-right">24h%</div>
+      </div>
+      
+      {/* Virtual List */}
+      <div className="flex-1 w-full" ref={containerRef}>
+        {size.h > 0 && FixedSizeList && (
+          <FixedSizeList
+            height={size.h}
+            width={size.w}
+            itemCount={symbols.length}
+            itemSize={24} // Compact row height
+            itemData={symbols}
+            className="scrollbar-hide"
+          >
+            {Row}
+          </FixedSizeList>
         )}
       </div>
     </div>
